@@ -8,8 +8,9 @@ import (
 )
 
 var (
-	inventoryFile string
-	rootCmd       = &cobra.Command{
+	inventoryFile      string
+	ignoreHostkeyCheck bool
+	rootCmd            = &cobra.Command{
 		Use:   "rcse",
 		Short: "Run a command somewhere else",
 	}
@@ -28,4 +29,11 @@ func init() {
 	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.rcse.yaml)")
 	rootCmd.PersistentFlags().StringVarP(&inventoryFile, "inventory", "i", "", "the inventory file of hosts to lookup.")
 	rootCmd.MarkPersistentFlagRequired("inventory")
+
+	rootCmd.PersistentFlags().BoolVar(
+		&ignoreHostkeyCheck,
+		"ignore-hostkey-checking",
+		false,
+		"disable host key verification. This will accept any host key and is insecure.\n"+
+			"this is the same as 'ssh -o StrictHostKeyChecking=no' ")
 }

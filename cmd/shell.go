@@ -4,9 +4,9 @@ import (
 	"bufio"
 	"log"
 	"os"
-	"os/exec"
 	"sync"
 
+	"rcse/cmd/cliconfig"
 	"rcse/pkg/common"
 
 	"github.com/spf13/cobra"
@@ -29,20 +29,22 @@ func init() {
 }
 
 func runCommand(host string, command string) {
-	cmd := exec.Command("ssh", "-t", "-oStrictHostKeyChecking=no", host, command)
-	// var out bytes.Buffer
-	// cmd.Stdout = &out
-	stdout, err := cmd.Output()
+	// ignoreHostkeyCheck is a persistent flag set in the root command
+	sshSession := cliconfig.EstablishSSHConnection(host, ignoreHostkeyCheck)
+	defer sshSession.Close()
+
+	stdout, err := sshSession.Output(command)
+
 	if err != nil {
-		log.Printf("Failed on %s, error was: %s\n", host, err)
+		log.Fatalf("Failed on %s, error was: %s\n", host, err)
 		return
 	}
 	result := common.CommandResult{
-		Stdout:     stdout,
-		ReturnCode: cmd.ProcessState.ExitCode(),
-		Host:       host,
+		Stdout: stdout,
+		// ReturnCode: cmd.ProcessState.ExitCode(),
+		Host: host,
 	}
-	common.PrintHostOutput(result)
+	result.PrintHostOutput()
 }
 
 func shellCommand(cmd *cobra.Command, args []string) {
