@@ -4,6 +4,9 @@ import "fmt"
 
 // CommandResult contains various information about what a command returned.
 type CommandResult struct {
+	// The command that was ran.
+	CommandRan string
+
 	// stdout from the command.
 	Stdout []byte
 
@@ -16,5 +19,5 @@ type CommandResult struct {
 
 // PrintHostOutput formats the host and stdout nicely.
 func (cr *CommandResult) PrintHostOutput() {
-	fmt.Printf("----- %s ----- \n%s\n", cr.Host, cr.Stdout)
+	fmt.Printf("----- %s -----\n%s\n%s\n", cr.Host, cr.CommandRan, cr.Stdout)
 }

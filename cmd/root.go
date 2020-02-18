@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -27,8 +28,9 @@ func Execute() {
 
 func init() {
 	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.rcse.yaml)")
-	rootCmd.PersistentFlags().StringVarP(&inventoryFile, "inventory", "i", "", "the inventory file of hosts to lookup.")
+	rootCmd.PersistentFlags().StringVarP(&inventoryFile, "inventory", "i", "", "the inventory file of hosts to run on.")
 	rootCmd.MarkPersistentFlagRequired("inventory")
+	viper.BindPFlag("inventory", rootCmd.PersistentFlags().Lookup("inventory"))
 
 	rootCmd.PersistentFlags().BoolVar(
 		&ignoreHostkeyCheck,
