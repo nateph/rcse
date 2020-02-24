@@ -1,45 +1,34 @@
 package cliconfig
 
 import (
-	"fmt"
-	"log"
+	"os"
+	"os/user"
 	"path/filepath"
+	"strings"
 
-	"github.com/spf13/viper"
+	"github.com/sirupsen/logrus"
 )
 
-// ReadInventoryFile is a wrapper command around viper to read in hosts that we
-// want to execute jobs on
-func ReadInventoryFile() []string {
-	invFilePath, invFileName := parseFilePath()
-	invFile := viper.New()
-	invFile.SetConfigType("yaml")
-	invFile.SetConfigName(invFileName)
-	invFile.AddConfigPath(invFilePath)
+// ParseAndVerifyFile will take the passed inventory file string from the flag and
+// parse/expand it to an absolute path.
+// It will then check it exists before returning the path.
+func ParseAndVerifyFile(filePath string) string {
+	var absFilePath string
 
-	err := invFile.ReadInConfig()
+	currentUser, _ := user.Current()
+	userHomeDir := currentUser.HomeDir
+	if strings.HasPrefix(filePath, "~/") {
+		absFilePath = filepath.Join(userHomeDir, filePath[2:])
+	}
+	absFilePath, err := filepath.Abs(filePath)
 	if err != nil {
-		panic(fmt.Errorf("could not parse inventory file: %s", err))
+		logrus.Fatalf("Couldn't parse filepath to absolute: %s", filePath)
 	}
 
-	return invFile.GetStringSlice("hosts")
-}
-
-// parseFilePath will read the inventory flag bound to viper and determine the
-// file path and the file name
-func parseFilePath() (string, string) {
-	var filePath string
-	var fileName string
-
-	if viper.IsSet("inventory") {
-		passedFile, err := filepath.Abs(viper.GetString("inventory"))
-		if err != nil {
-			log.Fatalf("Couldn't parse filepath to absolute: %s", viper.GetString("inventory"))
-		}
-		filePath = filepath.Dir(passedFile)
-		fileName = filepath.Base(passedFile)
-	} else {
-		log.Fatal("Viper could not find bound flag 'inventory'. Exiting")
+	fileInfo, err := os.Stat(absFilePath)
+	if err != nil || fileInfo.IsDir() {
+		logrus.Fatalf("File does not exist: %s", absFilePath)
 	}
-	return filePath, fileName
+
+	return absFilePath
 }
