@@ -11,6 +11,7 @@ import (
 )
 
 var (
+	listHosts          bool
 	inventoryFile      string
 	userToBecome       string
 	userPassword       string
@@ -32,11 +33,12 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+	rootCmd.PersistentFlags().BoolVar(&listHosts, "list-hosts", false, "list hosts that will be ran on. Doesn't execute anything else.")
 
-	rootCmd.PersistentFlags().StringVarP(&inventoryFile, "inventory", "i", "", "the inventory file of hosts to run on. in yaml format.")
+	rootCmd.PersistentFlags().StringVarP(&inventoryFile, "inventory", "i", "", "the inventory file of hosts to run on, in yaml format.")
 	viper.BindPFlag("inventory", rootCmd.PersistentFlags().Lookup("inventory"))
 
-	rootCmd.PersistentFlags().StringVarP(&userToBecome, "user", "u", "", "the optional user to execute as. requires -p")
+	rootCmd.PersistentFlags().StringVarP(&userToBecome, "user", "u", "", "the optional user to execute as, requires -p")
 	viper.BindPFlag("user", rootCmd.PersistentFlags().Lookup("user"))
 
 	rootCmd.PersistentFlags().StringVarP(&userPassword, "password", "p", "default", "the password for a remote user supplied by -u or --user.")
@@ -57,7 +59,7 @@ func init() {
 func initConfig() {
 	if viper.IsSet("user") && !viper.IsSet("password") {
 		logrus.Fatal("user flag was supplied, but a password wasn't.")
-	} else if viper.IsSet("password") && viper.GetString("password") == "default" {
+	} else if viper.IsSet("password") && viper.GetString("password") == "default" && !listHosts {
 		cliconfig.CheckAndConsumePassword()
 	}
 

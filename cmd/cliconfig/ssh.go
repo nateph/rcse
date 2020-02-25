@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os/user"
-	"rcse/pkg/common"
 	"syscall"
 
 	"github.com/sirupsen/logrus"
@@ -17,7 +16,7 @@ import (
 
 // RunSSHCommand runs the passed command and records its information in the
 // CommandResult struct
-func RunSSHCommand(command string, host string, session *ssh.Session) common.CommandResult {
+func RunSSHCommand(command string, host string, session *ssh.Session) CommandResult {
 	var stdoutBuffer bytes.Buffer
 	session.Stdout = &stdoutBuffer
 
@@ -27,9 +26,9 @@ func RunSSHCommand(command string, host string, session *ssh.Session) common.Com
 	sessionErr := session.Run(command)
 
 	if sessionErr != nil {
-		logrus.Errorf("Failed on %s, error was: %s\n", host, sessionErr)
+		logrus.Errorf("Failed on %s, %s\n", host, sessionErr)
 	}
-	result := common.CommandResult{
+	result := CommandResult{
 		CommandRan: command,
 		Host:       host,
 		Stderr:     stderrBuffer.Bytes(),
@@ -44,7 +43,7 @@ func CheckAndConsumePassword() {
 	fmt.Printf("Enter password for user '%s': ", viper.GetViper().GetString("user"))
 	pw, err := terminal.ReadPassword(int(syscall.Stdin))
 	if err != nil {
-		logrus.Fatalf("Couldn't retrieve password, error was: %v", err)
+		logrus.Fatalf("Couldn't read password, error was: %v", err)
 	}
 	userPassword := string(pw)
 	fmt.Println(userPassword)
