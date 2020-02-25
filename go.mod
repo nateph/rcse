@@ -3,6 +3,7 @@ module rcse
 go 1.13
 
 require (
+	github.com/fatih/color v1.9.0
 	github.com/go-delve/delve v1.4.0
 	github.com/gopherjs/gopherjs v0.0.0-20200217142428-fce0ec30dd00 // indirect
 	github.com/kr/pretty v0.2.0 // indirect

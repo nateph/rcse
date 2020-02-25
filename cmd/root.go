@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	listHosts          bool
+	listHostsFlag      bool
 	inventoryFile      string
 	userToBecome       string
 	userPassword       string
@@ -33,7 +33,7 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	rootCmd.PersistentFlags().BoolVar(&listHosts, "list-hosts", false, "list hosts that will be ran on. Doesn't execute anything else.")
+	rootCmd.PersistentFlags().BoolVar(&listHostsFlag, "list-hosts", false, "list hosts that will be ran on. Doesn't execute anything else.")
 
 	rootCmd.PersistentFlags().StringVarP(&inventoryFile, "inventory", "i", "", "the inventory file of hosts to run on, in yaml format.")
 	viper.BindPFlag("inventory", rootCmd.PersistentFlags().Lookup("inventory"))
@@ -59,7 +59,7 @@ func init() {
 func initConfig() {
 	if viper.IsSet("user") && !viper.IsSet("password") {
 		logrus.Fatal("user flag was supplied, but a password wasn't.")
-	} else if viper.IsSet("password") && viper.GetString("password") == "default" && !listHosts {
+	} else if viper.IsSet("password") && viper.GetString("password") == "default" && !listHostsFlag {
 		cliconfig.CheckAndConsumePassword()
 	}
 
@@ -67,8 +67,8 @@ func initConfig() {
 		viper.SetConfigType("yaml")
 		inventoryFilePath := cliconfig.ParseAndVerifyFile(inventoryFile)
 		viper.SetConfigFile(inventoryFilePath)
-
 	}
+
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
