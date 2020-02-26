@@ -34,45 +34,33 @@ func rawCommand(cmd *cobra.Command, args []string) {
 		}
 		return
 	}
-	results := make(chan cliconfig.CommandResult)
+	results := make(chan []cliconfig.CommandResult)
 	timeout := time.After(10 * time.Second)
+
+	commandSlice := []string{commandToRun}
 
 	for _, host := range parsedHosts {
 		// ignoreHostkeyCheck is a persistent flag set in the root command
 		rawCmdOpts := cliconfig.CommandOptions{
 			Host:               host,
-			CommandToRun:       commandToRun,
+			CommandsToRun:      commandSlice,
 			Sudo:               false,
 			IgnoreHostkeyCheck: ignoreHostkeyCheck,
 		}
 		go func() {
-			results <- rawCmdOpts.RunCommand()
+			results <- rawCmdOpts.RunCommands()
 		}()
 	}
 
 	for i := 0; i < len(parsedHosts); i++ {
 		select {
 		case res := <-results:
-			res.PrintHostOutput()
+			for _, result := range res {
+				result.PrintHostOutput()
+			}
 		case <-timeout:
 			fmt.Println("timed out")
 			return
 		}
 	}
-	// var wg sync.WaitGroup
-
-	// for _, host := range parsedHosts {
-	// 	wg.Add(1)
-	// 	rawCmdOpts := cliconfig.CommandOptions{
-	// 		Host:               host,
-	// 		CommandToRun:       commandToRun,
-	// 		Sudo:               false,
-	// 		IgnoreHostkeyCheck: ignoreHostkeyCheck,
-	// 	}
-	// 	go func(host string) {
-	// 		defer wg.Done()
-	// 		rawCmdOpts.RunCommand()
-	// 	}(host)
-	// }
-	// wg.Wait()
 }

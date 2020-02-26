@@ -2,6 +2,8 @@ package cliconfig
 
 import (
 	"fmt"
+
+	"github.com/sirupsen/logrus"
 )
 
 // CommandResult contains various information about what a command returned.
@@ -30,7 +32,7 @@ func (cr *CommandResult) PrintHostOutput() {
 // CommandOptions contains information on the the command to be ran
 type CommandOptions struct {
 	// Command that will be ran
-	CommandToRun string
+	CommandsToRun []string
 	// Which host it will be ran on
 	Host string
 	// To execute the command as sudo or not
@@ -39,12 +41,22 @@ type CommandOptions struct {
 	IgnoreHostkeyCheck bool
 }
 
-// RunCommand is a wrapper around establishing the ssh connection and then
+// RunCommands is a wrapper around establishing the ssh connection and then
 // calling the RunSSHCommand
-func (co *CommandOptions) RunCommand() CommandResult {
-	sshSession := EstablishSSHConnection(co.Host, co.IgnoreHostkeyCheck)
-	defer sshSession.Close()
+func (co *CommandOptions) RunCommands() []CommandResult {
+	sshClient := EstablishSSHConnection(co.Host, co.IgnoreHostkeyCheck)
+	defer sshClient.Close()
 
-	result := RunSSHCommand(co.CommandToRun, co.Host, sshSession)
-	return result
+	var CommandResults []CommandResult
+
+	for _, command := range co.CommandsToRun {
+		session, err := sshClient.NewSession()
+		if err != nil {
+			logrus.Fatalf("Failed to create session: %v", err.Error())
+		}
+		defer session.Close()
+		result := RunSSHCommand(command, co.Host, session)
+		CommandResults = append(CommandResults, result)
+	}
+	return CommandResults
 }

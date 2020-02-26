@@ -1,17 +1,16 @@
-package cliconfig
+package files
 
 import (
+	"fmt"
 	"os"
 	"os/user"
 	"path/filepath"
 	"strings"
-
-	"github.com/sirupsen/logrus"
 )
 
-// ParseAndVerifyFile will take the passed inventory file string from the flag and
+// ParseAndVerifyFilePath will take the passed inventory file string from the flag and
 // parse/expand it to an absolute path. It will then check the file exists before returning the path.
-func ParseAndVerifyFile(filePath string) string {
+func ParseAndVerifyFilePath(filePath string) (string, error) {
 	var absFilePath string
 
 	currentUser, _ := user.Current()
@@ -21,13 +20,13 @@ func ParseAndVerifyFile(filePath string) string {
 	}
 	absFilePath, err := filepath.Abs(filePath)
 	if err != nil {
-		logrus.Fatalf("Couldn't parse filepath to absolute: %s", filePath)
+		return "", fmt.Errorf("Couldn't parse filepath to absolute: %s", filePath)
 	}
 
 	fileInfo, err := os.Stat(absFilePath)
-	if err != nil || fileInfo.IsDir() {
-		logrus.Fatalf("File does not exist: %s", absFilePath)
+	if os.IsNotExist(err) || fileInfo.IsDir() {
+		return "", fmt.Errorf("File does not exist (or is a directory): %s", absFilePath)
 	}
 
-	return absFilePath
+	return absFilePath, nil
 }

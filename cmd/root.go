@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"rcse/cmd/cliconfig"
+	"rcse/pkg/files"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -65,11 +66,14 @@ func initConfig() {
 
 	if inventoryFile != "" {
 		viper.SetConfigType("yaml")
-		inventoryFilePath := cliconfig.ParseAndVerifyFile(inventoryFile)
+		inventoryFilePath, err := files.ParseAndVerifyFilePath(inventoryFile)
+		if err != nil {
+			logrus.Fatal(err.Error())
+		}
 		viper.SetConfigFile(inventoryFilePath)
 	}
 
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		fmt.Println("Using inventory file:", viper.ConfigFileUsed())
 	}
 }

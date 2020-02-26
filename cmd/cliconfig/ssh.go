@@ -67,7 +67,7 @@ func getKeyFile(currentUser *user.User) (key ssh.Signer, err error) {
 }
 
 // EstablishSSHConnection is meant to return an ssh session from your id_rsa
-func EstablishSSHConnection(host string, ignoreHostKeyCheck bool) *ssh.Session {
+func EstablishSSHConnection(host string, ignoreHostKeyCheck bool) *ssh.Client {
 	var sshConfig *ssh.ClientConfig
 
 	if viper.IsSet("user") {
@@ -111,11 +111,5 @@ func EstablishSSHConnection(host string, ignoreHostKeyCheck bool) *ssh.Session {
 		logrus.Fatalf("Failed to dial: %v", err.Error())
 	}
 
-	session, err := client.NewSession()
-
-	if err != nil {
-		logrus.Fatalf("Failed to create session: %v", err.Error())
-	}
-
-	return session
+	return client
 }

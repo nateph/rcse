@@ -1,8 +1,9 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/nateph/rcse)](https://goreportcard.com/report/github.com/nateph/rcse ) ![GitHub](https://img.shields.io/github/license/nateph/rcse)
 ### RCSE (Run Command Somewhere Else)
+***
 `rcse` is meant to be a simple tool for remote machine automation written in Go, and using SSH under the hood, with no agent to install on any remote machines.
 
-The idea is to have subcommands, i.e. `raw`, `shell`, `yum`, `playbook`, dictate what the program will do. The inventory file, supplied by `-i` will supply the list of hosts that the program is ran on, and it needs to be in YAML format. 
+The idea is to have subcommands, i.e. `raw`, `shell`, `yum`, `playbook`, dictate what the program will do. The inventory file, supplied by `-i` will supply the list of hosts that the program is ran on, and it needs to be in yaml format. 
 
 Example: 
 ```
@@ -20,3 +21,18 @@ If using a different user, the program will prompt for password input, or you ma
 `rcse ... -u root -p` and `rcse ... -u root -p=CoolPassword` are equivalent, but the first one prompts you for password input.
 
 Each subcommand has its own set of flags relevant to its purpose, as well as global flags.
+
+### Installation 
+***
+#### Download
+Coming soon 
+#### Using Go Modules
+```
+git clone git@github.com:nateph/rcse.git
+cd rcse && go install
+```
+#### Using $GOPATH
+```
+go get github.com/nateph/rcse
+cd $GOPATH/src/github.com/nateph/rcse && go install
+```
