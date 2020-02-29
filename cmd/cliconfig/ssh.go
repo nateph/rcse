@@ -8,7 +8,6 @@ import (
 	"syscall"
 
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/knownhosts"
 	"golang.org/x/crypto/ssh/terminal"
@@ -38,16 +37,14 @@ func RunSSHCommand(command string, host string, session *ssh.Session) CommandRes
 }
 
 // CheckAndConsumePassword will prompt the user for a password, read it from STDIN,
-// and set that password in viper.
-func CheckAndConsumePassword() {
-	fmt.Printf("Enter password for user '%s': ", viper.GetViper().GetString("user"))
+// and return it.
+func CheckAndConsumePassword(username string, password string) string {
+	fmt.Printf("Enter password for user '%s': ", username)
 	pw, err := terminal.ReadPassword(int(syscall.Stdin))
 	if err != nil {
 		logrus.Fatalf("Couldn't read password, error was: %v", err)
 	}
-	userPassword := string(pw)
-	fmt.Println(userPassword)
-	viper.Set("password", userPassword)
+	return string(pw)
 }
 
 // getKeyFile is a helper function from EstablishSSHConnection that reads in
@@ -66,15 +63,15 @@ func getKeyFile(currentUser *user.User) (key ssh.Signer, err error) {
 	return key, err
 }
 
-// EstablishSSHConnection is meant to return an ssh session from your id_rsa
-func EstablishSSHConnection(host string, ignoreHostKeyCheck bool) *ssh.Client {
+// EstablishSSHConnection returns an ssh session from your id_rsa or username/password
+func EstablishSSHConnection(username string, password string, host string, ignoreHostKeyCheck bool) *ssh.Client {
 	var sshConfig *ssh.ClientConfig
 
-	if viper.IsSet("user") {
+	if username != "" {
 		sshConfig = &ssh.ClientConfig{
-			User: viper.GetString("user"),
+			User: username,
 			Auth: []ssh.AuthMethod{
-				ssh.Password(viper.GetString("password")),
+				ssh.Password(password),
 			},
 			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		}

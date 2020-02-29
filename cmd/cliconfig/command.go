@@ -35,16 +35,20 @@ type CommandOptions struct {
 	CommandsToRun []string
 	// Which host it will be ran on
 	Host string
-	// To execute the command as sudo or not
-	Sudo bool
 	// Whether or not to verify host keys
 	IgnoreHostkeyCheck bool
+	// To execute the command as sudo or not
+	Sudo bool
+	// User to execute as
+	User string
+	// Password for User
+	Password string
 }
 
 // RunCommands is a wrapper around establishing the ssh connection and then
 // calling the RunSSHCommand
 func (co *CommandOptions) RunCommands() []CommandResult {
-	sshClient := EstablishSSHConnection(co.Host, co.IgnoreHostkeyCheck)
+	sshClient := EstablishSSHConnection(co.User, co.Password, co.Host, co.IgnoreHostkeyCheck)
 	defer sshClient.Close()
 
 	var CommandResults []CommandResult

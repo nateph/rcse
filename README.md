@@ -1,8 +1,8 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/nateph/rcse)](https://goreportcard.com/report/github.com/nateph/rcse ) ![GitHub](https://img.shields.io/github/license/nateph/rcse)
+[![CircleCI](https://circleci.com/gh/circleci/circleci-docs.svg?style=shield)](https://circleci.com/gh/nateph/rcse) [![Go Report Card](https://goreportcard.com/badge/github.com/nateph/rcse)](https://goreportcard.com/report/github.com/nateph/rcse ) ![GitHub](https://img.shields.io/github/license/nateph/rcse)
 ### RCSE (Run Command Somewhere Else)
 `rcse` is meant to be a simple tool for remote machine automation written in Go, and using SSH under the hood, with no agent to install on any remote machines.
 
-The idea is to have subcommands, i.e. `raw`, `shell`, `yum`, `sequence`, dictate what the program will do. The inventory file, supplied by `-i` will supply the list of hosts that the program is ran on, and it needs to be in yaml format. 
+The program has subcommands, i.e. `raw`, `shell`, `yum`, `sequence`, and those will dictate what actions get performed. The inventory file, supplied by `-i` will supply the list of hosts that the program is ran on, and it needs to be in yaml format under the key `hosts`. 
 
 Example: 
 ```
@@ -12,14 +12,14 @@ hosts:
   - vmhost001.ci.com
 ```
 
-For example, running `rcse raw -i <inventory_file> -c "ls -l"` would list the contents of your user on each of the hosts in the inventory file. Without a user specified, rcse will use the current user's ssh keys. 
+For example, running `rcse raw -i <inventory_file> -c "ls -l"` would list the contents of your user on each of the hosts in the inventory file. The command should be quoted, and without a user specified, it will use the current user's ssh keys. 
 
 A username, `--user`, and password, `--password` can be specified to execute the commands as a different user.
-If using a different user, the program will prompt for password input, or you may pass the password through command line argument, but that is not recommended. 
+If providing a different user, the program will prompt for password input. You may pass the password explicitly in the command, however that is not recommended.
 
-`rcse ... -u root -p` and `rcse ... -u root -p=CoolPassword` are equivalent, but the first one prompts you for password input.
+`rcse ... -u root -p` and `rcse ... -u root -p=CoolPassword` are equivalent, but the first one prompts you for password input securely.
 
-Each subcommand has its own set of flags relevant to its purpose, as well as global flags.
+Each subcommand has its own set of flags relevant to its purpose, and there are global flags available to every command.
 
 ### Installation 
 #### Download

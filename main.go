@@ -1,7 +1,14 @@
 package main
 
-import "rcse/cmd"
+import (
+	"os"
+	"rcse/cmd"
+)
 
 func main() {
-	cmd.Execute()
+	rcseCmd := cmd.NewRootCmd(os.Stdout, os.Args[1:])
+
+	if err := rcseCmd.Execute(); err != nil {
+		os.Exit(1)
+	}
 }
