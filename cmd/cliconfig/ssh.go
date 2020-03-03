@@ -22,11 +22,15 @@ func RunSSHCommand(command string, host string, session *ssh.Session) CommandRes
 	var stderrBuffer bytes.Buffer
 	session.Stderr = &stderrBuffer
 
-	sessionErr := session.Run(command)
-
+	sessionErr := session.Start(command)
 	if sessionErr != nil {
 		logrus.Errorf("Failed on %s, %s\n", host, sessionErr)
 	}
+	err := session.Wait()
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
 	result := CommandResult{
 		CommandRan: command,
 		Host:       host,
@@ -48,7 +52,7 @@ func CheckAndConsumePassword(username string, password string) string {
 }
 
 // getKeyFile is a helper function from EstablishSSHConnection that reads in
-// and parses the users ssh id_rsa
+// and parses the user's ssh id_rsa
 func getKeyFile(currentUser *user.User) (key ssh.Signer, err error) {
 	IDRsaFile := currentUser.HomeDir + "/.ssh/id_rsa"
 	buf, err := ioutil.ReadFile(IDRsaFile)
@@ -68,12 +72,26 @@ func EstablishSSHConnection(username string, password string, host string, ignor
 	var sshConfig *ssh.ClientConfig
 
 	if username != "" {
+
+		var hostKeyCallback ssh.HostKeyCallback
+
+		if !ignoreHostKeyCheck {
+			currentUser, _ := user.Current()
+			knownHostsCallback, err := knownhosts.New(currentUser.HomeDir + "/.ssh/known_hosts")
+			if err != nil {
+				logrus.Fatal(err)
+			}
+			hostKeyCallback = knownHostsCallback
+		} else {
+			hostKeyCallback = ssh.InsecureIgnoreHostKey()
+		}
+
 		sshConfig = &ssh.ClientConfig{
 			User: username,
 			Auth: []ssh.AuthMethod{
 				ssh.Password(password),
 			},
-			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+			HostKeyCallback: hostKeyCallback,
 		}
 	} else {
 		currentUser, _ := user.Current()

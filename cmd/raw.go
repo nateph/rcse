@@ -79,15 +79,13 @@ func executeRaw(rawOptions RawOptions) error {
 		return nil
 	}
 	// ---------------------------------------------
-	results := make(chan []cliconfig.CommandResult)
+	results := make(chan cliconfig.CommandResult)
 	timeout := time.After(10 * time.Second)
-
-	commandSlice := []string{commandToRun}
 
 	for _, host := range parsedHosts {
 		rawCmdOpts := cliconfig.CommandOptions{
 			Host:               host,
-			CommandsToRun:      commandSlice,
+			CommandToRun:       commandToRun,
 			Sudo:               false,
 			IgnoreHostkeyCheck: rawOptions.IgnoreHostKeyCheck,
 			User:               rawOptions.User,
@@ -101,9 +99,7 @@ func executeRaw(rawOptions RawOptions) error {
 	for i := 0; i < len(parsedHosts); i++ {
 		select {
 		case res := <-results:
-			for _, result := range res {
-				result.PrintHostOutput()
-			}
+			res.PrintHostOutput()
 		case <-timeout:
 			fmt.Println("timed out")
 		}
