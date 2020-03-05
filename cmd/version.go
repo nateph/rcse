@@ -29,6 +29,6 @@ func runVersion(cmd *cobra.Command, args []string) error {
 		rcse:   "0.1",
 		golang: runtime.Version(),
 	}
-	fmt.Printf("rcse v%s\nbuilt by %s", version.rcse, version.golang)
+	fmt.Printf("rcse v%s\nbuilt with %s", version.rcse, version.golang)
 	return nil
 }

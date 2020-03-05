@@ -2,9 +2,9 @@
 ### RCSE (Run Command Somewhere Else)
 `rcse` is meant to be a simple tool for remote machine automation written in Go, and using SSH under the hood, with no agent to install on any remote machines.
 
-The program has subcommands, i.e. `raw`, `shell`, `yum`, `sequence`, and those will dictate what actions get performed.
+The program has subcommands, i.e. `shell`, `yum`, `ping`, `sequence`, and those will dictate what actions get performed.
 #### Inventory
-The inventory file, supplied by `-i` will supply the list of hosts that the program is ran on, and it needs to be in yaml format under the key `hosts`:
+The inventory file, passed with `-i`, will supply the list of hosts that the program is ran on, and it needs to be in yaml format under the key `hosts`:
  
 ```
 hosts:
@@ -13,7 +13,7 @@ hosts:
   - vmhost001.ci.com
 ```
 
-For example, running `rcse raw -i <inventory_file> -c "ls -l"` would list the contents of your user on each of the hosts in the inventory file. The command should be quoted, and without a user specified, it will use the current user's ssh keys. 
+For example, running `rcse shell -i <inventory_file> -c "ls -l"` would list the contents of your user's home directory on each of the hosts in the inventory file. The command should be quoted, and without a user specified, it will use the current user's ssh keys. 
 
 #### Authentication 
 A username, `--user`, and password, `--password`, can be specified to execute the commands as a different user.
@@ -23,7 +23,14 @@ If providing a different user, the program will prompt for password input. You m
 
 If no user is specified, it will use the current user's id_rsa found in `~/.ssh/id_rsa`.
 
+#### Running concurrently 
+There are options for how many hosts to run on at one time, with the `--forks` flag. Accompanying it is `--failure-limit` which will stop and exit the program when that limit is hit. With neither flag set, the forks and limit is set high (100 and 1000 respectively), making a default run fast and unopinionated about the failure limit.
+
+At any one time, the program will keep `--forks=n` amount of executors running. For example, if set to 15, the program will start by executing on 15 hosts concurrently, and then when one finishes, it will pick up the next host to run on, and so on. Contrast this with batching, where the next batch will only start when all hosts in the previous batch have finished.
+
+#### Flags
 Each subcommand has its own set of flags relevant to its purpose, as well as global flags available to every command.
+Please use `--help` on any command to see options.
 
 ### Installation 
 #### Download

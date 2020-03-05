@@ -15,7 +15,7 @@ import (
 
 // RunSSHCommand runs the passed command and records its information in the
 // CommandResult struct
-func RunSSHCommand(command string, host string, session *ssh.Session) CommandResult {
+func RunSSHCommand(command string, host string, session *ssh.Session) (CommandResult, error) {
 	var stdoutBuffer bytes.Buffer
 	session.Stdout = &stdoutBuffer
 
@@ -24,11 +24,11 @@ func RunSSHCommand(command string, host string, session *ssh.Session) CommandRes
 
 	sessionErr := session.Start(command)
 	if sessionErr != nil {
-		logrus.Errorf("Failed on %s, %s\n", host, sessionErr)
+		return CommandResult{}, fmt.Errorf("Failed on %s, %s\n", host, sessionErr)
 	}
 	err := session.Wait()
 	if err != nil {
-		logrus.Fatal(err)
+		return CommandResult{}, fmt.Errorf("Failed on %s, %s\n", host, sessionErr)
 	}
 
 	result := CommandResult{
@@ -37,7 +37,7 @@ func RunSSHCommand(command string, host string, session *ssh.Session) CommandRes
 		Stderr:     stderrBuffer.Bytes(),
 		Stdout:     stdoutBuffer.Bytes(),
 	}
-	return result
+	return result, nil
 }
 
 // CheckAndConsumePassword will prompt the user for a password, read it from STDIN,
@@ -68,7 +68,7 @@ func getKeyFile(currentUser *user.User) (key ssh.Signer, err error) {
 }
 
 // EstablishSSHConnection returns an ssh session from your id_rsa or username/password
-func EstablishSSHConnection(username string, password string, host string, ignoreHostKeyCheck bool) *ssh.Client {
+func EstablishSSHConnection(username string, password string, host string, ignoreHostKeyCheck bool) (*ssh.Client, error) {
 	var sshConfig *ssh.ClientConfig
 
 	if username != "" {
@@ -123,8 +123,8 @@ func EstablishSSHConnection(username string, password string, host string, ignor
 	}
 	client, err := ssh.Dial("tcp", host+":22", sshConfig)
 	if err != nil {
-		logrus.Fatalf("Failed to dial: %v", err.Error())
+		return nil, fmt.Errorf("Failed to connect to host: %s", host)
 	}
 
-	return client
+	return client, nil
 }

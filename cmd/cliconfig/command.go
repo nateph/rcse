@@ -2,8 +2,6 @@ package cliconfig
 
 import (
 	"fmt"
-
-	"github.com/sirupsen/logrus"
 )
 
 // CommandResult contains various information about what a command returned.
@@ -47,15 +45,41 @@ type CommandOptions struct {
 
 // RunCommands is a wrapper around establishing the ssh connection and then
 // calling the RunSSHCommand
-func (co *CommandOptions) RunCommands() CommandResult {
-	sshClient := EstablishSSHConnection(co.User, co.Password, co.Host, co.IgnoreHostkeyCheck)
+// func (co *CommandOptions) RunCommands() CommandResult {
+// 	sshClient, err := EstablishSSHConnection(co.User, co.Password, co.Host, co.IgnoreHostkeyCheck)
+// 	if err != nil {
+// 		logrus.Error(err)
+// 	}
+// 	defer sshClient.Close()
+
+// 	session, err := sshClient.NewSession()
+// 	if err != nil {
+// 		logrus.Fatalf("Failed to create session: %v", err.Error())
+// 	}
+// 	defer session.Close()
+// 	result := RunSSHCommand(co.CommandToRun, co.Host, session)
+// 	return result
+// }
+
+// RunCommand is a wrapper around establishing the ssh connection and then
+// calling the RunSSHCommand
+func RunCommand(co CommandOptions) error {
+	sshClient, err := EstablishSSHConnection(co.User, co.Password, co.Host, co.IgnoreHostkeyCheck)
+	if err != nil {
+		return err
+	}
 	defer sshClient.Close()
 
 	session, err := sshClient.NewSession()
 	if err != nil {
-		logrus.Fatalf("Failed to create session: %v", err.Error())
+		return fmt.Errorf("Failed to create session: %v", err.Error())
 	}
 	defer session.Close()
-	result := RunSSHCommand(co.CommandToRun, co.Host, session)
-	return result
+	result, err := RunSSHCommand(co.CommandToRun, co.Host, session)
+	if err != nil {
+		return err
+	}
+
+	result.PrintHostOutput()
+	return nil
 }

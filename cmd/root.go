@@ -31,7 +31,7 @@ func NewRootCmd(out io.Writer, args []string) *cobra.Command {
 	cliSettings = new(cliconfig.CliSettings)
 
 	cmd.AddCommand(
-		newRawCommand(out),
+		newShellCommand(out),
 		newVersionCommand(out),
 	)
 
