@@ -1,4 +1,4 @@
-module rcse
+module github.com/nateph/rcse
 
 go 1.14
 

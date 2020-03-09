@@ -15,8 +15,8 @@ type InventoryFile struct {
 	Hosts []string `yaml:"hosts"`
 }
 
-// Project includes all project configuration
-type Project struct {
+// Config includes all project configuration
+type Config struct {
 	InvFile InventoryFile `yaml:",inline"`
 }
 
@@ -59,7 +59,7 @@ func LoadInventory(file string) (inv InventoryFile, err error) {
 }
 
 // LoadReader returns the contents of a config file as a Project
-func LoadReader(fd io.Reader) (config Project, err error) {
+func LoadReader(fd io.Reader) (config Config, err error) {
 	data, err := ioutil.ReadAll(fd)
 	if err != nil {
 		return config, err

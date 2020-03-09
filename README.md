@@ -26,7 +26,7 @@ If no user is specified, it will use the current user's id_rsa found in `~/.ssh/
 #### Running concurrently 
 There are options for how many hosts to run on at one time, with the `--forks` flag. Accompanying it is `--failure-limit` which will stop and exit the program when that limit is hit. With neither flag set, the forks and limit is set high (100 and 1000 respectively), making a default run fast and unopinionated about the failure limit.
 
-At any one time, the program will keep `--forks=n` amount of executors running. For example, if set to 15, the program will start by executing on 15 hosts concurrently, and then when one finishes, it will pick up the next host to run on, and so on. Contrast this with batching, where the next batch will only start when all hosts in the previous batch have finished.
+At any one time, the program will keep `--forks=n` amount of executors running. For example, if set to 15, the program will start by executing on 15 hosts concurrently, and then when one finishes, it will pick up the next host to run on, and so on. Contrast this with batching, where the next batch will only start when all hosts in the previous batch have finished. Setting this flag executes on hosts as they are listed in the inventory file, in descending order.
 
 #### Flags
 Each subcommand has its own set of flags relevant to its purpose, as well as global flags available to every command.

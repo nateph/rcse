@@ -2,13 +2,15 @@ package main
 
 import (
 	"os"
-	"rcse/cmd"
+
+	"github.com/nateph/rcse/cmd"
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
 	rcseCmd := cmd.NewRootCmd(os.Stdout, os.Args[1:])
 
 	if err := rcseCmd.Execute(); err != nil {
-		os.Exit(1)
+		logrus.Fatal(err)
 	}
 }

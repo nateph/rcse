@@ -1,4 +1,4 @@
-package cliconfig
+package command
 
 import (
 	"bytes"
@@ -7,7 +7,6 @@ import (
 	"os/user"
 	"syscall"
 
-	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/knownhosts"
 	"golang.org/x/crypto/ssh/terminal"
@@ -15,40 +14,36 @@ import (
 
 // RunSSHCommand runs the passed command and records its information in the
 // CommandResult struct
-func RunSSHCommand(command string, host string, session *ssh.Session) (CommandResult, error) {
+func RunSSHCommand(command string, host string, session *ssh.Session) (Result, error) {
 	var stdoutBuffer bytes.Buffer
 	session.Stdout = &stdoutBuffer
 
 	var stderrBuffer bytes.Buffer
 	session.Stderr = &stderrBuffer
 
-	sessionErr := session.Start(command)
-	if sessionErr != nil {
-		return CommandResult{}, fmt.Errorf("Failed on %s, %s\n", host, sessionErr)
-	}
-	err := session.Wait()
+	err := session.Run(command)
 	if err != nil {
-		return CommandResult{}, fmt.Errorf("Failed on %s, %s\n", host, sessionErr)
+		return Result{}, fmt.Errorf("failed %s, %s %s", host, err, stderrBuffer.String())
 	}
 
-	result := CommandResult{
+	result := Result{
 		CommandRan: command,
 		Host:       host,
-		Stderr:     stderrBuffer.Bytes(),
-		Stdout:     stdoutBuffer.Bytes(),
+		Stdout:     stdoutBuffer.String(),
 	}
 	return result, nil
 }
 
 // CheckAndConsumePassword will prompt the user for a password, read it from STDIN,
 // and return it.
-func CheckAndConsumePassword(username string, password string) string {
+func CheckAndConsumePassword(username string, password string) (string, error) {
 	fmt.Printf("Enter password for user '%s': ", username)
+
 	pw, err := terminal.ReadPassword(int(syscall.Stdin))
 	if err != nil {
-		logrus.Fatalf("Couldn't read password, error was: %v", err)
+		return "", fmt.Errorf("failed to read password from input: %v", err)
 	}
-	return string(pw)
+	return string(pw), nil
 }
 
 // getKeyFile is a helper function from EstablishSSHConnection that reads in
@@ -57,11 +52,11 @@ func getKeyFile(currentUser *user.User) (key ssh.Signer, err error) {
 	IDRsaFile := currentUser.HomeDir + "/.ssh/id_rsa"
 	buf, err := ioutil.ReadFile(IDRsaFile)
 	if err != nil {
-		logrus.Fatalf("unable to read file %s", IDRsaFile)
+		return nil, fmt.Errorf("unable to read file %s", IDRsaFile)
 	}
 	key, err = ssh.ParsePrivateKey(buf)
 	if err != nil {
-		logrus.Fatalf("unable to parse private key: %v", err)
+		return nil, fmt.Errorf("unable to parse private key: %v", err)
 	}
 
 	return key, err
@@ -79,7 +74,7 @@ func EstablishSSHConnection(username string, password string, host string, ignor
 			currentUser, _ := user.Current()
 			knownHostsCallback, err := knownhosts.New(currentUser.HomeDir + "/.ssh/known_hosts")
 			if err != nil {
-				logrus.Fatal(err)
+				return nil, err
 			}
 			hostKeyCallback = knownHostsCallback
 		} else {
@@ -101,7 +96,7 @@ func EstablishSSHConnection(username string, password string, host string, ignor
 		if !ignoreHostKeyCheck {
 			knownHostsCallback, err := knownhosts.New(currentUser.HomeDir + "/.ssh/known_hosts")
 			if err != nil {
-				logrus.Fatal(err)
+				return nil, err
 			}
 			hostKeyCallback = knownHostsCallback
 		} else {

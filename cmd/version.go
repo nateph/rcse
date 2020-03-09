@@ -8,9 +8,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// Declare to package scope for Make
+var (
+	buildDate = "unknown"
+	gitCommit = "unknown"
+	rcse      = "unknown"
+)
+
+// ProgramVersion contains info for various versions related to the program
 type programVersion struct {
-	rcse   string
-	golang string
+	buildDate string
+	gitCommit string
+	golang    string
+	rcse      string
 }
 
 func newVersionCommand(out io.Writer) *cobra.Command {
@@ -25,10 +35,12 @@ func newVersionCommand(out io.Writer) *cobra.Command {
 }
 
 func runVersion(cmd *cobra.Command, args []string) error {
-	version := programVersion{
-		rcse:   "0.1",
-		golang: runtime.Version(),
+	Version := programVersion{
+		gitCommit: gitCommit,
+		buildDate: buildDate,
+		golang:    runtime.Version(),
+		rcse:      rcse,
 	}
-	fmt.Printf("rcse v%s\nbuilt with %s", version.rcse, version.golang)
+	fmt.Printf("rcse v%s\n%s\ngit commit %s\nbuilt on %s", Version.rcse, Version.golang, Version.gitCommit, Version.buildDate)
 	return nil
 }

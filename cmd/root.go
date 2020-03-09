@@ -3,13 +3,14 @@ package cmd
 import (
 	"errors"
 	"io"
-	"rcse/cmd/cliconfig"
+
+	"github.com/nateph/rcse/pkg/cliconfig"
 
 	"github.com/spf13/cobra"
 )
 
 var (
-	cliSettings *cliconfig.CliSettings
+	baseSettings *cliconfig.BaseSettings
 )
 
 // NewRootCmd returns a root command
@@ -28,9 +29,10 @@ func NewRootCmd(out io.Writer, args []string) *cobra.Command {
 
 	flags := cmd.PersistentFlags()
 	flags.Parse(args)
-	cliSettings = new(cliconfig.CliSettings)
+	baseSettings = new(cliconfig.BaseSettings)
 
 	cmd.AddCommand(
+		newPingCommand(out),
 		newShellCommand(out),
 		newVersionCommand(out),
 	)
