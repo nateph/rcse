@@ -23,28 +23,22 @@ func worker(wg *sync.WaitGroup, jobs <-chan command.Options, results chan<- comm
 }
 
 // Execute is a wrapper function to handle concurrency
-func Execute(hosts []string, opts cliconfig.JobOptions) error {
-	jobs := make(chan command.Options, opts.Forks)
-	results := make(chan command.Result, opts.Forks)
-	errorsChan := make(chan error, len(hosts))
+func Execute(conf *cliconfig.Config, inventory ...string) error {
+	jobs := make(chan command.Options)
+	results := make(chan command.Result)
+	errorsChan := make(chan error)
 
 	var wg sync.WaitGroup
 	// Spawn n number of workers specified by --forks
-	for w := 0; w < opts.Forks; w++ {
+	for w := 0; w < conf.Options.Forks; w++ {
 		wg.Add(1)
 		go worker(&wg, jobs, results, errorsChan)
 	}
 
+	generatedJobs := generateJobs(conf, inventory...)
 	go func() {
-		for _, host := range hosts {
-			jobOpts := command.Options{
-				Host:               host,
-				CommandToRun:       opts.CommandToRun,
-				IgnoreHostkeyCheck: opts.IgnoreHostKeyCheck,
-				User:               opts.User,
-				Password:           opts.Password,
-			}
-			jobs <- jobOpts
+		for _, j := range generatedJobs {
+			jobs <- j
 		}
 	}()
 
@@ -55,17 +49,35 @@ func Execute(hosts []string, opts cliconfig.JobOptions) error {
 
 	var failureLimit int
 
-	for i := 0; i < len(hosts); i++ {
+	for i := 0; i < len(inventory)*len(conf.Jobs); i++ {
 		select {
 		case res := <-results:
-			res.PrintHostOutput(opts.OutFormat)
+			res.PrintHostOutput(conf.Options.OutFormat)
 		case <-errorsChan:
 			failureLimit++
-			if failureLimit >= opts.FailureLimit {
+			if failureLimit >= conf.Options.FailureLimit {
 				return errors.New("too many failures, exiting")
 			}
 		}
 	}
 
 	return nil
+}
+
+func generateJobs(conf *cliconfig.Config, inventory ...string) []command.Options {
+	var jobs []command.Options
+
+	for _, host := range inventory {
+		for _, job := range conf.Jobs {
+			jobOpts := command.Options{
+				Host:               host,
+				CommandToRun:       job.Command,
+				IgnoreHostkeyCheck: conf.Options.IgnoreHostKeyCheck,
+				User:               conf.Options.User,
+				Password:           conf.Options.Password,
+			}
+			jobs = append(jobs, jobOpts)
+		}
+	}
+	return jobs
 }

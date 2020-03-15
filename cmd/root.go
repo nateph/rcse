@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	baseSettings *cliconfig.BaseSettings
+	baseSettings *cliconfig.Options
 )
 
 // NewRootCmd returns a root command
@@ -29,10 +29,10 @@ func NewRootCmd(out io.Writer, args []string) *cobra.Command {
 
 	flags := cmd.PersistentFlags()
 	flags.Parse(args)
-	baseSettings = new(cliconfig.BaseSettings)
+	baseSettings = new(cliconfig.Options)
 
 	cmd.AddCommand(
-		newPingCommand(out),
+		newSequenceCommand(out),
 		newShellCommand(out),
 		newVersionCommand(out),
 	)

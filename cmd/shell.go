@@ -2,13 +2,11 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"io"
 
 	"github.com/nateph/rcse/pkg/cliconfig"
 	"github.com/nateph/rcse/pkg/command"
 	"github.com/nateph/rcse/pkg/concurrent"
-	"github.com/nateph/rcse/pkg/files"
 
 	"github.com/spf13/cobra"
 )
@@ -33,7 +31,7 @@ func newShellCommand(out io.Writer) *cobra.Command {
 }
 
 func runShell(cmd *cobra.Command, args []string) error {
-	if err := cliconfig.CheckBaseOptions(baseSettings); err != nil {
+	if err := baseSettings.CheckBaseOptions(); err != nil {
 		return err
 	}
 
@@ -50,33 +48,37 @@ func runShell(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	shellOptions := cliconfig.JobOptions{
-		BaseSettings: baseSettings,
-		CommandToRun: commandToRun,
-	}
-
-	return executeShell(shellOptions)
-}
-
-func executeShell(shellOptions cliconfig.JobOptions) error {
-	parsedInventoryFile, err := files.LoadInventory(shellOptions.InventoryFile)
+	inventory, err := cliconfig.LoadInventory(baseSettings.InventoryFilePath)
 	if err != nil {
 		return err
 	}
 
-	hosts := parsedInventoryFile.Hosts
+	shellConfig := generateShellConfig(*baseSettings)
 
-	if shellOptions.ListHosts {
-		for _, host := range hosts {
-			fmt.Println(host)
-		}
-		return nil
-	}
+	return ExecuteShell(shellConfig, inventory.Hosts...)
+}
 
-	err = concurrent.Execute(hosts, shellOptions)
+// ExecuteShell executes shell commands concurrently
+func ExecuteShell(config *cliconfig.Config, inventory ...string) error {
+	err := concurrent.Execute(config, inventory...)
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func generateShellConfig(opts cliconfig.Options) *cliconfig.Config {
+	var jobs []cliconfig.Job
+	shellConfigJobs := cliconfig.Job{
+		Command: commandToRun,
+	}
+	jobs = append(jobs, shellConfigJobs)
+
+	shellConfig := &cliconfig.Config{
+		Jobs:    jobs,
+		Options: opts,
+	}
+
+	return shellConfig
 }

@@ -6,10 +6,10 @@ import "fmt"
 type Options struct {
 	// Command that will be ran
 	CommandToRun string
-	// Which host it will be ran on
-	Host string
 	// Whether or not to verify host keys
 	IgnoreHostkeyCheck bool
+	// Host to execute on
+	Host string
 	// User to execute as
 	User string
 	// Password for User
@@ -18,8 +18,8 @@ type Options struct {
 
 // RunCommand is a wrapper around establishing the ssh connection and then
 // calling the RunSSHCommand
-func (o *Options) RunCommand() (Result, error) {
-	sshClient, err := EstablishSSHConnection(o.User, o.Password, o.Host, o.IgnoreHostkeyCheck)
+func (opts *Options) RunCommand() (Result, error) {
+	sshClient, err := EstablishSSHConnection(opts.User, opts.Password, opts.Host, opts.IgnoreHostkeyCheck)
 	if err != nil {
 		return Result{}, err
 	}
@@ -31,17 +31,7 @@ func (o *Options) RunCommand() (Result, error) {
 	}
 	defer session.Close()
 
-	// If 'ping' is being ran, no command is ran and on successfull SSH connection,
-	// 'pong' is returned to signify success.
-	if o.CommandToRun == "" {
-		return Result{
-			Host:       o.Host,
-			Stdout:     "pong",
-			CommandRan: "",
-		}, nil
-	}
-
-	result, err := RunSSHCommand(o.CommandToRun, o.Host, session)
+	result, err := RunSSHCommand(opts.CommandToRun, opts.Host, session)
 	if err != nil {
 		return Result{}, err
 	}

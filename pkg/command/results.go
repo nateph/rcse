@@ -7,11 +7,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// Results contains all results for a host list
-type Results struct {
-	Result []*Result `json:"results"`
-}
-
 // Result contains various information about what a command returned.
 type Result struct {
 	// The command that was ran.

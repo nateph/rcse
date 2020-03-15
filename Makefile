@@ -9,6 +9,8 @@ LDFLAGS=-ldflags "-X 'github.com/nateph/rcse/cmd.rcse=$(VERSION)' -X 'github.com
 
 build:
 	go build -o $(BINARY) $(LDFLAGS)
+install:
+	go install $(LDFLAGS)
 darwin:
 	GOOS=darwin GOARCH=amd64 go build -o $(BINARY) $(LDFLAGS)
 linux:
