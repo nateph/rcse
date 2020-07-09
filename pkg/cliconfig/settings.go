@@ -118,7 +118,9 @@ func LoadInventory(file string) (inv InventoryFile, err error) {
 		return inv, err
 	}
 	err = yaml.UnmarshalStrict(data, &inv)
-
+	if err != nil {
+		return InventoryFile{}, err
+	}
 	return inv, nil
 }
 
@@ -129,6 +131,9 @@ func LoadConfig(file string) (config *Config, err error) {
 		return config, err
 	}
 	err = yaml.UnmarshalStrict(data, &config)
+	if err != nil {
+		return &Config{}, err
+	}
 
 	return config, nil
 }

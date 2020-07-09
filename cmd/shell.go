@@ -53,13 +53,13 @@ func runShell(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	shellConfig := generateShellConfig(*baseSettings)
+	shellConfig := generateShellConfig(baseSettings)
 
-	return ExecuteShell(shellConfig, inventory.Hosts...)
+	return executeShell(shellConfig, inventory.Hosts...)
 }
 
 // ExecuteShell executes shell commands concurrently
-func ExecuteShell(config *cliconfig.Config, inventory ...string) error {
+func executeShell(config *cliconfig.Config, inventory ...string) error {
 	err := concurrent.Execute(config, inventory...)
 	if err != nil {
 		return err
@@ -68,7 +68,7 @@ func ExecuteShell(config *cliconfig.Config, inventory ...string) error {
 	return nil
 }
 
-func generateShellConfig(opts cliconfig.Options) *cliconfig.Config {
+func generateShellConfig(opts *cliconfig.Options) *cliconfig.Config {
 	var jobs []cliconfig.Job
 	shellConfigJobs := cliconfig.Job{
 		Command: commandToRun,
@@ -77,7 +77,7 @@ func generateShellConfig(opts cliconfig.Options) *cliconfig.Config {
 
 	shellConfig := &cliconfig.Config{
 		Jobs:    jobs,
-		Options: opts,
+		Options: *opts,
 	}
 
 	return shellConfig

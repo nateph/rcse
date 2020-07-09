@@ -21,7 +21,7 @@ type Result struct {
 func (r *Result) PrintHostOutput(format string) {
 	switch format {
 	case "text":
-		fmt.Printf("----- %s -----\n%s\n\n%s\n", r.Host, r.CommandRan, r.Stdout)
+		fmt.Printf("host: %s\ncommand: %s\n\n%s===================================\n", r.Host, r.CommandRan, r.Stdout)
 	case "json":
 		jsonData, err := json.Marshal(&r)
 		if err != nil {
