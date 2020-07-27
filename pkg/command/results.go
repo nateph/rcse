@@ -3,7 +3,11 @@ package command
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"strings"
 
+	"github.com/prometheus/common/log"
+	"golang.org/x/crypto/ssh/terminal"
 	"gopkg.in/yaml.v2"
 )
 
@@ -19,9 +23,16 @@ type Result struct {
 
 // PrintHostOutput formats the host and stdout nicely.
 func (r *Result) PrintHostOutput(format string) {
+	terminalWidth := getTerminalWidth()
 	switch format {
 	case "text":
-		fmt.Printf("host: %s\ncommand: %s\n\n%s===================================\n", r.Host, r.CommandRan, r.Stdout)
+		fmt.Printf(
+			"host: %s\ncommand: %s\nstdout:\n%s%s\n",
+			r.Host,
+			r.CommandRan,
+			r.Stdout,
+			strings.Repeat("-", terminalWidth),
+		)
 	case "json":
 		jsonData, err := json.Marshal(&r)
 		if err != nil {
@@ -37,6 +48,11 @@ func (r *Result) PrintHostOutput(format string) {
 	}
 }
 
-// func handleJSON() {
-
-// }
+func getTerminalWidth() int {
+	termID := int(os.Stdout.Fd())
+	width, _, err := terminal.GetSize(termID)
+	if err != nil {
+		log.Error(err)
+	}
+	return width
+}
