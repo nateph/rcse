@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	rcseCmd := cmd.NewRootCmd(os.Stdout, os.Args[1:])
+	rcseCmd := cmd.NewRcseCommand(os.Stdout, os.Args[1:])
 
 	if err := rcseCmd.Execute(); err != nil {
 		logrus.Fatal(err)

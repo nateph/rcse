@@ -4,17 +4,11 @@ import (
 	"errors"
 	"io"
 
-	"github.com/nateph/rcse/pkg/cliconfig"
-
 	"github.com/spf13/cobra"
 )
 
-var (
-	baseSettings *cliconfig.Options
-)
-
-// NewRootCmd returns a root command
-func NewRootCmd(out io.Writer, args []string) *cobra.Command {
+// NewRcseCommand returns a new rcse command
+func NewRcseCommand(out io.Writer, args []string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "rcse",
 		Short: "Run a command somewhere else",
@@ -27,14 +21,12 @@ func NewRootCmd(out io.Writer, args []string) *cobra.Command {
 		},
 	}
 
-	flags := cmd.PersistentFlags()
-	flags.Parse(args)
-	baseSettings = new(cliconfig.Options)
+	cmd.PersistentFlags().Parse(args)
 
 	cmd.AddCommand(
-		newSequenceCommand(out),
-		newShellCommand(out),
-		newVersionCommand(out),
+		// newSequenceCommand(out),
+		NewShellCommand(out),
+		NewVersionCommand(out),
 	)
 
 	return cmd

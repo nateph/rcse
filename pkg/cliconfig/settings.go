@@ -2,6 +2,7 @@ package cliconfig
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 
@@ -53,8 +54,8 @@ type Config struct {
 	Options Options `yaml:",omitempty"`
 }
 
-// AddFlags binds base flags from the root command to the given flagset.
-func (o *Options) AddFlags(fs *pflag.FlagSet) {
+// AddBaseFlags binds base flags from the root command to the given flagset.
+func (o *Options) AddBaseFlags(fs *pflag.FlagSet) {
 	fs.IntVar(&o.FailureLimit, "failure-limit", 1000, "stop execution after n amount of hosts return a failure")
 	fs.IntVar(&o.Forks, "forks", 1, "the max amount of hosts to run at any given time")
 	fs.BoolVarP(
@@ -69,14 +70,23 @@ func (o *Options) AddFlags(fs *pflag.FlagSet) {
 	fs.StringVarP(&o.OutFormat, "format", "o", "text", "format result output. takes text/json/yaml")
 	fs.StringVarP(&o.Password, "password", "p", "default", "the password for a remote user supplied by -u or --user")
 	fs.Lookup("password").NoOptDefVal = "default"
-	fs.StringVarP(&o.User, "user", "u", "", "the optional user to execute as, requires -p")
+	fs.StringVarP(&o.User, "user", "u", "", "the optional user to execute as, if -p is not provided, will prompt for password")
 }
 
 // CheckBaseOptions verifies there was correct options specified
 func (o *Options) CheckBaseOptions() error {
 	if o.InventoryFilePath == "" {
 		return errors.New("no inventory flag was specified, all rcse operations require an inventory")
+	} else if o.ListHosts {
+		inventory, err := LoadInventory(o.InventoryFilePath)
+		if err != nil {
+			return err
+		}
+		for _, host := range inventory.Hosts {
+			fmt.Println(host)
+		}
 	}
+
 	if o.Forks == 0 {
 		return errors.New("forks value needs to be above 0")
 	}
@@ -84,7 +94,7 @@ func (o *Options) CheckBaseOptions() error {
 	// if --username and --password were supplied correctly without --list-hosts
 	var err error
 	if o.User != "" && o.Password == "default" && !o.ListHosts {
-		o.Password, err = command.CheckAndConsumePassword(o.User, o.Password)
+		o.Password, err = command.ConsumePassword(o.User, o.Password)
 		if err != nil {
 			return err
 		}

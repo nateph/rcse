@@ -1,11 +1,13 @@
 package command
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // Options contains information on the the command to be ran
 type Options struct {
 	// Command that will be ran
-	CommandToRun string
+	Command string
 	// Whether or not to verify host keys
 	IgnoreHostkeyCheck bool
 	// Host to execute on
@@ -31,7 +33,7 @@ func (opts *Options) RunCommand() (Result, error) {
 	}
 	defer session.Close()
 
-	result, err := RunSSHCommand(opts.CommandToRun, opts.Host, session)
+	result, err := RunSSHCommand(opts.Command, opts.Host, session)
 	if err != nil {
 		return Result{}, err
 	}

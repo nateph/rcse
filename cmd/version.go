@@ -23,7 +23,8 @@ type programVersion struct {
 	rcse      string
 }
 
-func newVersionCommand(out io.Writer) *cobra.Command {
+// NewVersionCommand returns a new 'version' subcommand
+func NewVersionCommand(out io.Writer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                   "version",
 		Short:                 "Display the version number of rcse",

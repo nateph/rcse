@@ -12,8 +12,7 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-// RunSSHCommand runs the passed command and records its information in the
-// CommandResult struct
+// RunSSHCommand runs the command and records its information in a CommandResult
 func RunSSHCommand(command string, host string, session *ssh.Session) (Result, error) {
 	var stdoutBuffer bytes.Buffer
 	session.Stdout = &stdoutBuffer
@@ -34,10 +33,9 @@ func RunSSHCommand(command string, host string, session *ssh.Session) (Result, e
 	return result, nil
 }
 
-// CheckAndConsumePassword will prompt the user for a password, read it from STDIN,
-// and return it.
-func CheckAndConsumePassword(username string, password string) (string, error) {
-	fmt.Printf("Enter password for user '%s': ", username)
+// ConsumePassword will prompt the user for a password, reads it from STDIN, and returns it.
+func ConsumePassword(username string, password string) (string, error) {
+	fmt.Printf("Enter password for user (%s): ", username)
 
 	pw, err := terminal.ReadPassword(int(syscall.Stdin))
 	if err != nil {

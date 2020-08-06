@@ -49,7 +49,7 @@ func Execute(conf *cliconfig.Config, inventory ...string) error {
 
 	var failureLimit int
 
-	for i := 0; i < len(inventory)*len(conf.Jobs); i++ {
+	for i := 0; i < len(inventory); i++ {
 		select {
 		case res := <-results:
 			res.PrintHostOutput(conf.Options.OutFormat)
@@ -64,6 +64,22 @@ func Execute(conf *cliconfig.Config, inventory ...string) error {
 	return nil
 }
 
+// func generateShellJobs(s *cmd.ShellOptions, inventory ...string) []command.Options {
+// 	var jobs []command.Options
+
+// 	for _, host := range inventory {
+// 		jobOpts := command.Options{
+// 			Host:               host,
+// 			Command:            s.Command,
+// 			IgnoreHostkeyCheck: s.BaseOpts.IgnoreHostKeyCheck,
+// 			User:               s.BaseOpts.User,
+// 			Password:           s.BaseOpts.Password,
+// 		}
+// 		jobs = append(jobs, jobOpts)
+// 	}
+// 	return jobs
+// }
+
 func generateJobs(conf *cliconfig.Config, inventory ...string) []command.Options {
 	var jobs []command.Options
 
@@ -71,7 +87,7 @@ func generateJobs(conf *cliconfig.Config, inventory ...string) []command.Options
 		for _, job := range conf.Jobs {
 			jobOpts := command.Options{
 				Host:               host,
-				CommandToRun:       job.Command,
+				Command:            job.Command,
 				IgnoreHostkeyCheck: conf.Options.IgnoreHostKeyCheck,
 				User:               conf.Options.User,
 				Password:           conf.Options.Password,
