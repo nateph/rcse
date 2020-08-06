@@ -85,6 +85,8 @@ func (o *Options) CheckBaseOptions() error {
 		for _, host := range inventory.Hosts {
 			fmt.Println(host)
 		}
+		// Stop execution if --list-hosts was passed
+		os.Exit(0)
 	}
 
 	if o.Forks == 0 {
