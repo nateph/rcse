@@ -12,13 +12,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// Concurrent holds channel info for workerpool
-// type Concurrent struct {
-// 	Jobs    chan command.Options
-// 	Results chan command.Result
-// 	Err     chan error
-// }
-
 // InventoryFile should only contain one yaml entry for hosts
 type InventoryFile struct {
 	Hosts []string `yaml:"hosts"`
@@ -68,14 +61,14 @@ func (o *Options) AddBaseFlags(fs *pflag.FlagSet) {
 	fs.StringVarP(&o.InventoryFilePath, "inventory", "i", "", "the inventory file of hosts to run on, in yaml format")
 	fs.BoolVar(&o.ListHosts, "list-hosts", false, "list hosts that will be ran on. Doesn't execute anything else")
 	fs.StringVarP(&o.OutFormat, "format", "o", "text", "format result output. takes text/json/yaml")
-	fs.StringVarP(&o.Password, "password", "p", "default", "the password for a remote user supplied by -u or --user")
+	fs.StringVarP(&o.Password, "password", "p", "", "the password for a remote user")
 	fs.Lookup("password").NoOptDefVal = "default"
 	fs.StringVarP(&o.User, "user", "u", "", "the optional user to execute as, if -p is not provided, will prompt for password")
 }
 
 // CheckBaseOptions verifies there was correct options specified
 func (o *Options) CheckBaseOptions() error {
-	if o.InventoryFilePath == "" {
+	if len(o.InventoryFilePath) == 0 {
 		return errors.New("no inventory flag was specified, all rcse operations require an inventory")
 	} else if o.ListHosts {
 		inventory, err := LoadInventory(o.InventoryFilePath)
@@ -93,13 +86,24 @@ func (o *Options) CheckBaseOptions() error {
 		return errors.New("forks value needs to be above 0")
 	}
 
-	// if --username and --password were supplied correctly without --list-hosts
+	if err := o.VerifyUserOpts(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// VerifyUserOpts validates user and password options
+func (o *Options) VerifyUserOpts() error {
 	var err error
-	if o.User != "" && o.Password == "default" && !o.ListHosts {
+	// Prompt for password if a user was supplied with or without -p, but only if -p was empty
+	if (len(o.User) != 0 && o.Password == "default") || (len(o.User) != 0 && len(o.Password) == 0) {
 		o.Password, err = command.ConsumePassword(o.User, o.Password)
 		if err != nil {
 			return err
 		}
+		// if a password was passed without a user
+	} else if len(o.User) == 0 && len(o.Password) != 0 {
+		return errors.New("please set a user if supplying a password")
 	}
 	return nil
 }
@@ -123,7 +127,7 @@ func LoadFile(file string) (data []byte, err error) {
 	return data, nil
 }
 
-// LoadInventory returns the inventory file contents
+// LoadInventory returns the inventory file contents as an InventoryFile
 func LoadInventory(file string) (inv InventoryFile, err error) {
 	data, err := LoadFile(file)
 	if err != nil {

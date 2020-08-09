@@ -49,7 +49,7 @@ func Execute(conf *cliconfig.Config, inventory ...string) error {
 
 	var failureLimit int
 
-	for i := 0; i < len(inventory); i++ {
+	for i := 0; i < len(inventory)*len(conf.Jobs); i++ {
 		select {
 		case res := <-results:
 			res.PrintHostOutput(conf.Options.OutFormat)

@@ -10,9 +10,11 @@ import (
 // NewRcseCommand returns a new rcse command
 func NewRcseCommand(out io.Writer, args []string) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "rcse",
-		Short: "Run a command somewhere else",
-		Long:  "Run a command somewhere else",
+		Use:           "rcse",
+		Short:         "Run a command somewhere else",
+		Long:          "Run a command somewhere else",
+		SilenceUsage:  true,
+		SilenceErrors: true,
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) > 0 {
 				return errors.New("no arguments accepted")
@@ -24,7 +26,7 @@ func NewRcseCommand(out io.Writer, args []string) *cobra.Command {
 	cmd.PersistentFlags().Parse(args)
 
 	cmd.AddCommand(
-		// newSequenceCommand(out),
+		NewSequenceCommand(out),
 		NewShellCommand(out),
 		NewVersionCommand(out),
 	)

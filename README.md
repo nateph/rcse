@@ -2,7 +2,7 @@
 ### RCSE (Run Command Somewhere Else)
 `rcse` is meant to be a simple tool for remote machine automation written in Go, and using SSH under the hood, with no agent to install on any remote machines.
 
-The program has subcommands, i.e. `shell`, `yum`, `sequence`, and those will dictate what actions get performed.
+The program has subcommands, i.e. `shell`, `sequence`, and those will dictate what actions get performed.
 #### Inventory
 The inventory file, passed with `-i`, will supply the list of hosts that the program is ran on, and it needs to be in yaml format under the key `hosts`:
  
