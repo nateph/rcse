@@ -16,12 +16,14 @@ type Options struct {
 	User string
 	// Password for User
 	Password string
+	// A custom private key to use
+	PrivateKey string
 }
 
 // RunCommand is a wrapper around establishing the ssh connection and then
 // calling the RunSSHCommand
 func (opts *Options) RunCommand() (Result, error) {
-	sshClient, err := EstablishSSHConnection(opts.User, opts.Password, opts.Host, opts.IgnoreHostkeyCheck)
+	sshClient, err := EstablishSSHConnection(opts.User, opts.Password, opts.Host, opts.IgnoreHostkeyCheck, opts.PrivateKey)
 	if err != nil {
 		return Result{}, err
 	}

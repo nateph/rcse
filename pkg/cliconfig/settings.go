@@ -26,6 +26,7 @@ type Options struct {
 	ListHosts          bool
 	OutFormat          string `yaml:"format,omitempty"`
 	Password           string `yaml:"password,omitempty"`
+	PrivateKey         string `yaml:"privatekey"`
 	User               string `yaml:"user,omitempty"`
 }
 
@@ -58,12 +59,13 @@ func (o *Options) AddBaseFlags(fs *pflag.FlagSet) {
 		false,
 		"disable host key verification. this will accept any host key and is insecure.\n"+
 			"same as 'ssh -o StrictHostKeyChecking=no' ")
-	fs.StringVarP(&o.InventoryFilePath, "inventory", "i", "", "the inventory file of hosts to run on, in yaml format")
+	fs.StringVarP(&o.InventoryFilePath, "inventory", "i", o.InventoryFilePath, "the inventory file of hosts to run on, in yaml format")
 	fs.BoolVar(&o.ListHosts, "list-hosts", false, "list hosts that will be ran on. Doesn't execute anything else")
 	fs.StringVarP(&o.OutFormat, "format", "o", "text", "format result output. takes text/json/yaml")
-	fs.StringVarP(&o.Password, "password", "p", "", "the password for a remote user")
+	fs.StringVarP(&o.Password, "password", "p", o.Password, "the password for a remote user")
 	fs.Lookup("password").NoOptDefVal = "default"
-	fs.StringVarP(&o.User, "user", "u", "", "the optional user to execute as, if -p is not provided, will prompt for password")
+	fs.StringVarP(&o.User, "user", "u", o.User, "the optional user to execute as, if -p is not provided, will prompt for password")
+	fs.StringVar(&o.PrivateKey, "private-key", o.PrivateKey, "specify a private key to use for ssh connection.")
 }
 
 // CheckBaseOptions verifies there was correct options specified
@@ -84,6 +86,13 @@ func (o *Options) CheckBaseOptions() error {
 
 	if o.Forks == 0 {
 		return errors.New("forks value needs to be above 0")
+	}
+
+	if len(o.PrivateKey) != 0 {
+		_, err := files.ParseAndVerifyFilePath(o.PrivateKey)
+		if err != nil {
+			return err
+		}
 	}
 
 	if err := o.VerifyUserOpts(); err != nil {

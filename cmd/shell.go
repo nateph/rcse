@@ -34,7 +34,7 @@ func NewShellCommand(out io.Writer) *cobra.Command {
 	o := &ShellOptions{BaseOpts: &cliconfig.Options{}}
 	cmd := &cobra.Command{
 		Use:     "shell",
-		Short:   "Execute a shell command",
+		Short:   "Execute a shell command remotely",
 		Example: shellExample,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := o.Validate(); err != nil {
@@ -46,7 +46,6 @@ func NewShellCommand(out io.Writer) *cobra.Command {
 			return nil
 		},
 	}
-
 	cmd.Flags().StringVarP(&o.Command, "command", "c", "", "the command to run on a remote host")
 	o.BaseOpts.AddBaseFlags(cmd.Flags())
 

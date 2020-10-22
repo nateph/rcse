@@ -46,11 +46,16 @@ func ConsumePassword(username string, password string) (string, error) {
 
 // getKeyFile is a helper function from EstablishSSHConnection that reads in
 // and parses the user's ssh id_rsa
-func getKeyFile(currentUser *user.User) (key ssh.Signer, err error) {
-	IDRsaFile := currentUser.HomeDir + "/.ssh/id_rsa"
-	buf, err := ioutil.ReadFile(IDRsaFile)
+func getKeyFile(currentUser *user.User, privateKeyPath string) (key ssh.Signer, err error) {
+	var IDFile string
+	if privateKeyPath == "" {
+		IDFile = currentUser.HomeDir + "/.ssh/id_rsa"
+	} else {
+		IDFile = privateKeyPath
+	}
+	buf, err := ioutil.ReadFile(IDFile)
 	if err != nil {
-		return nil, fmt.Errorf("unable to read file %s", IDRsaFile)
+		return nil, fmt.Errorf("unable to read file %s", IDFile)
 	}
 	key, err = ssh.ParsePrivateKey(buf)
 	if err != nil {
@@ -61,11 +66,10 @@ func getKeyFile(currentUser *user.User) (key ssh.Signer, err error) {
 }
 
 // EstablishSSHConnection returns an ssh session from your id_rsa or username/password
-func EstablishSSHConnection(username string, password string, host string, ignoreHostKeyCheck bool) (*ssh.Client, error) {
+func EstablishSSHConnection(username string, password string, host string, ignoreHostKeyCheck bool, privateKey string) (*ssh.Client, error) {
 	var sshConfig *ssh.ClientConfig
 
 	if username != "" {
-
 		var hostKeyCallback ssh.HostKeyCallback
 
 		if !ignoreHostKeyCheck {
@@ -101,7 +105,7 @@ func EstablishSSHConnection(username string, password string, host string, ignor
 			hostKeyCallback = ssh.InsecureIgnoreHostKey()
 		}
 
-		key, err := getKeyFile(currentUser)
+		key, err := getKeyFile(currentUser, privateKey)
 		if err != nil {
 			panic(err)
 		}

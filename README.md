@@ -1,6 +1,6 @@
 [![CircleCI](https://circleci.com/gh/circleci/circleci-docs.svg?style=shield)](https://circleci.com/gh/nateph/rcse) [![Go Report Card](https://goreportcard.com/badge/github.com/nateph/rcse)](https://goreportcard.com/report/github.com/nateph/rcse ) ![GitHub](https://img.shields.io/github/license/nateph/rcse)
 ### RCSE (Run Command Somewhere Else)
-`rcse` is meant to be a simple tool for remote machine automation written in Go, and using SSH under the hood, with no agent to install on any remote machines.
+`rcse` is meant to be a simple tool for remote machine automation written in Go, and using SSH under the hood, with no agent or extra packages to install on any remote machines.
 
 The program has subcommands, i.e. `shell`, `sequence`, and those will dictate what actions get performed.
 #### Inventory

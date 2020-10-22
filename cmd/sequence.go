@@ -33,7 +33,7 @@ func NewSequenceCommand(out io.Writer) *cobra.Command {
 	o := &SequenceOptions{BaseOpts: &cliconfig.Options{}}
 	cmd := &cobra.Command{
 		Use:     "sequence",
-		Short:   "Execute a shell command",
+		Short:   "Run a sequence",
 		Example: sequenceExample,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := o.Validate(); err != nil {

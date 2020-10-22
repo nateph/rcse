@@ -64,22 +64,6 @@ func Execute(conf *cliconfig.Config, inventory ...string) error {
 	return nil
 }
 
-// func generateShellJobs(s *cmd.ShellOptions, inventory ...string) []command.Options {
-// 	var jobs []command.Options
-
-// 	for _, host := range inventory {
-// 		jobOpts := command.Options{
-// 			Host:               host,
-// 			Command:            s.Command,
-// 			IgnoreHostkeyCheck: s.BaseOpts.IgnoreHostKeyCheck,
-// 			User:               s.BaseOpts.User,
-// 			Password:           s.BaseOpts.Password,
-// 		}
-// 		jobs = append(jobs, jobOpts)
-// 	}
-// 	return jobs
-// }
-
 func generateJobs(conf *cliconfig.Config, inventory ...string) []command.Options {
 	var jobs []command.Options
 
@@ -91,6 +75,7 @@ func generateJobs(conf *cliconfig.Config, inventory ...string) []command.Options
 				IgnoreHostkeyCheck: conf.Options.IgnoreHostKeyCheck,
 				User:               conf.Options.User,
 				Password:           conf.Options.Password,
+				PrivateKey:         conf.Options.PrivateKey,
 			}
 			jobs = append(jobs, jobOpts)
 		}
