@@ -26,7 +26,7 @@ func NewRcseCommand(out io.Writer, args []string) *cobra.Command {
 	cmd.PersistentFlags().Parse(args)
 
 	cmd.AddCommand(
-		NewSequenceCommand(out),
+		NewScriptCommand(out),
 		NewShellCommand(out),
 		NewVersionCommand(out),
 	)

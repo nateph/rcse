@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 )
 
-// ParseAndVerifyFilePath will take the passed inventory file string from the flag and
-// parse/expand it to an absolute path. It will then check the file exists before returning the path.
+// ParseAndVerifyFilePath will take the passed inventory file and parse/expand
+// it to an absolute path. It will then check the file exists before returning the path.
 func ParseAndVerifyFilePath(filePath string) (string, error) {
 	var absFilePath string
 

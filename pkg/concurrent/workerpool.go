@@ -11,14 +11,27 @@ import (
 
 func worker(wg *sync.WaitGroup, jobs <-chan command.Options, results chan<- command.Result, errChan chan<- error) {
 	defer wg.Done()
+	// commandType.Command,Script will be populated depending on which subcommand was
+	// chosen. The other should also be empty
 	for job := range jobs {
-		res, err := job.RunCommand()
-		if err != nil {
-			logrus.Error(err)
-			errChan <- err
-			continue
+		switch commandType := job; {
+		case commandType.Command != "":
+			res, err := job.RunCommand()
+			if err != nil {
+				logrus.Error(err)
+				errChan <- err
+				continue
+			}
+			results <- res
+		case commandType.Script != "":
+			res, err := job.RunScript()
+			if err != nil {
+				logrus.Error(err)
+				errChan <- err
+				continue
+			}
+			results <- res
 		}
-		results <- res
 	}
 }
 
@@ -49,7 +62,7 @@ func Execute(conf *cliconfig.Config, inventory ...string) error {
 
 	var failureLimit int
 
-	for i := 0; i < len(inventory)*len(conf.Jobs); i++ {
+	for i := 0; i < len(inventory); i++ {
 		select {
 		case res := <-results:
 			res.PrintHostOutput(conf.Options.OutFormat)
@@ -68,17 +81,16 @@ func generateJobs(conf *cliconfig.Config, inventory ...string) []command.Options
 	var jobs []command.Options
 
 	for _, host := range inventory {
-		for _, job := range conf.Jobs {
-			jobOpts := command.Options{
-				Host:               host,
-				Command:            job.Command,
-				IgnoreHostkeyCheck: conf.Options.IgnoreHostKeyCheck,
-				User:               conf.Options.User,
-				Password:           conf.Options.Password,
-				PrivateKey:         conf.Options.PrivateKey,
-			}
-			jobs = append(jobs, jobOpts)
+		jobOpts := command.Options{
+			Host:               host,
+			Command:            conf.Job.Command,
+			IgnoreHostkeyCheck: conf.Options.IgnoreHostKeyCheck,
+			User:               conf.Options.User,
+			Password:           conf.Options.Password,
+			PrivateKey:         conf.Options.PrivateKey,
+			Script:             conf.Job.Script,
 		}
+		jobs = append(jobs, jobOpts)
 	}
 	return jobs
 }

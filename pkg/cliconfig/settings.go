@@ -33,18 +33,13 @@ type Options struct {
 // Job represents a singular job
 type Job struct {
 	Command string `yaml:"command"`
-	Module  string `yaml:"module"`
-	Name    string `yaml:"name"`
-}
-
-// ShellOptions represents one shell command
-type ShellOptions struct {
-	Jobs []Job
+	Script  string `yaml:"script"`
 }
 
 // Config includes all configuration for the program
 type Config struct {
-	Jobs    []Job   `yaml:"jobs"`
+	// We can either be running single command or a script so we abstract it to a job type
+	Job     Job
 	Options Options `yaml:",omitempty"`
 }
 
@@ -149,7 +144,7 @@ func LoadInventory(file string) (inv InventoryFile, err error) {
 	return inv, nil
 }
 
-// LoadConfig reads in a sequence yaml file and stores its information
+// LoadConfig reads in a yaml file and stores its information
 func LoadConfig(file string) (config *Config, err error) {
 	data, err := LoadFile(file)
 	if err != nil {

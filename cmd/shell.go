@@ -12,15 +12,15 @@ import (
 
 var (
 	shellExample = `
-	# Run a command 
-	rcse shell -i ~/inv.yaml -c "ls -la"
+# Run a command 
+rcse shell -i ~/inv.yaml -c "ls -la"
 
-	# Run a command as a different user
-	rcse shell -i ~/inv.yaml -c "systemctl restart nginx" -u root -p
+# Run a command as a different user
+rcse shell -i ~/inv.yaml -c "systemctl restart nginx" -u root -p
 
-	# Run a command with forks
-	rcse shell -i ~/inv.yaml -c "ls -la" --forks=10 --failure-limit=2
-	`
+# Run a command with forks
+rcse shell -i ~/inv.yaml -c "ls -la" --forks=10 --failure-limit=2
+`
 )
 
 // ShellOptions is the commandline options for 'shell' sub command
@@ -74,7 +74,7 @@ func (s *ShellOptions) Run() error {
 		Command: s.Command,
 	}
 	executeConfig := &cliconfig.Config{
-		Jobs:    []cliconfig.Job{*job},
+		Job:     *job,
 		Options: *s.BaseOpts,
 	}
 	err = concurrent.Execute(executeConfig, inventory.Hosts...)

@@ -3,10 +3,17 @@ package command
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"log"
+	"math/rand"
+	"os"
 	"os/user"
+	"strconv"
 	"syscall"
+	"time"
 
+	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/knownhosts"
 	"golang.org/x/crypto/ssh/terminal"
@@ -31,6 +38,44 @@ func RunSSHCommand(command string, host string, session *ssh.Session) (Result, e
 		Stdout:     stdoutBuffer.String(),
 	}
 	return result, nil
+}
+
+func generateScriptName() string {
+	s1 := rand.NewSource(time.Now().UnixNano())
+	r1 := rand.New(s1)
+	fileName := fmt.Sprintf("/tmp/rcse-%s.sh", strconv.Itoa(r1.Int()))
+
+	return fileName
+}
+
+// TransferScript copies a script to a remote host and sets its mode to 0777
+func TransferScript(scriptPath string, client *sftp.Client) (string, error) {
+	// Generate a filename that likely doesn't exist
+	dstFileName := generateScriptName()
+	dstFile, err := client.Create(dstFileName)
+	if err != nil {
+		return "", err
+	}
+	defer dstFile.Close()
+
+	srcFile, err := os.Open(scriptPath)
+	if err != nil {
+		return "", err
+	}
+	_, err = io.Copy(dstFile, srcFile)
+	if err != nil {
+		return "", err
+	}
+
+	err = client.Chmod(dstFileName, 0777)
+	if err != nil {
+		return "", err
+	}
+
+	// TODO: add this as debug log level?
+	fmt.Printf("Successfully transfered script as %s\n", dstFileName)
+
+	return dstFileName, nil
 }
 
 // ConsumePassword will prompt the user for a password, reads it from STDIN, and returns it.
@@ -65,7 +110,7 @@ func getKeyFile(currentUser *user.User, privateKeyPath string) (key ssh.Signer, 
 	return key, err
 }
 
-// EstablishSSHConnection returns an ssh session from your id_rsa or username/password
+// EstablishSSHConnection returns an ssh client config from an id_rsa or username/password
 func EstablishSSHConnection(username string, password string, host string, ignoreHostKeyCheck bool, privateKey string) (*ssh.Client, error) {
 	var sshConfig *ssh.ClientConfig
 
@@ -121,6 +166,16 @@ func EstablishSSHConnection(username string, password string, host string, ignor
 	client, err := ssh.Dial("tcp", host+":22", sshConfig)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to connect to host: %s", host)
+	}
+
+	return client, nil
+}
+
+// EstablishSFTPConnection returns an sftp client for use
+func EstablishSFTPConnection(sshClient *ssh.Client) (*sftp.Client, error) {
+	client, err := sftp.NewClient(sshClient)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	return client, nil
