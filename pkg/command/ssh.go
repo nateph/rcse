@@ -72,9 +72,6 @@ func TransferScript(scriptPath string, client *sftp.Client) (string, error) {
 		return "", err
 	}
 
-	// TODO: add this as debug log level?
-	fmt.Printf("Successfully transfered script as %s\n", dstFileName)
-
 	return dstFileName, nil
 }
 

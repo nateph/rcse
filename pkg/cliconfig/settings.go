@@ -19,28 +19,29 @@ type InventoryFile struct {
 
 // Options represents fields under the options key
 type Options struct {
-	FailureLimit       int    `yaml:"failurelimit,omitempty"`
-	Forks              int    `yaml:"forks,omitempty"`
-	IgnoreHostKeyCheck bool   `yaml:"insecure,omitempty"`
-	InventoryFilePath  string `yaml:"inventory"`
+	FailureLimit       int
+	Forks              int
+	IgnoreHostKeyCheck bool
+	InventoryFilePath  string
 	ListHosts          bool
-	OutFormat          string `yaml:"format,omitempty"`
-	Password           string `yaml:"password,omitempty"`
-	PrivateKey         string `yaml:"privatekey"`
-	User               string `yaml:"user,omitempty"`
+	OutFormat          string
+	Password           string
+	PrivateKey         string
+	User               string
+	Verbose            bool
 }
 
 // Job represents a singular job
 type Job struct {
-	Command string `yaml:"command"`
-	Script  string `yaml:"script"`
+	Command string
+	Script  string
 }
 
 // Config includes all configuration for the program
 type Config struct {
 	// We can either be running single command or a script so we abstract it to a job type
 	Job     Job
-	Options Options `yaml:",omitempty"`
+	Options Options
 }
 
 // AddBaseFlags binds base flags from the root command to the given flagset.
@@ -55,12 +56,13 @@ func (o *Options) AddBaseFlags(fs *pflag.FlagSet) {
 		"disable host key verification. this will accept any host key and is insecure.\n"+
 			"same as 'ssh -o StrictHostKeyChecking=no' ")
 	fs.StringVarP(&o.InventoryFilePath, "inventory", "i", o.InventoryFilePath, "the inventory file of hosts to run on, in yaml format")
-	fs.BoolVar(&o.ListHosts, "list-hosts", false, "list hosts that will be ran on. Doesn't execute anything else")
+	fs.BoolVar(&o.ListHosts, "list-hosts", false, "only list hosts that will be executed on, then exits")
 	fs.StringVarP(&o.OutFormat, "format", "o", "text", "format result output. takes text/json/yaml")
 	fs.StringVarP(&o.Password, "password", "p", o.Password, "the password for a remote user")
 	fs.Lookup("password").NoOptDefVal = "default"
 	fs.StringVarP(&o.User, "user", "u", o.User, "the optional user to execute as, if -p is not provided, will prompt for password")
-	fs.StringVar(&o.PrivateKey, "private-key", o.PrivateKey, "specify a private key to use for ssh connection.")
+	fs.StringVar(&o.PrivateKey, "private-key", o.PrivateKey, "specify a private key to use for ssh connection")
+	// fs.BoolVarP(&o.Verbose, "verbose", "v", false, "enable verbose logging")
 }
 
 // CheckBaseOptions verifies there was correct options specified
@@ -75,11 +77,11 @@ func (o *Options) CheckBaseOptions() error {
 		for _, host := range inventory.Hosts {
 			fmt.Println(host)
 		}
-		// Stop execution if --list-hosts was passed
+		// Stop execution and exit successfully if --list-hosts was passed
 		os.Exit(0)
 	}
 
-	if o.Forks == 0 {
+	if o.Forks <= 0 {
 		return errors.New("forks value needs to be above 0")
 	}
 

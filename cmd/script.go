@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"io"
 
 	"github.com/nateph/rcse/pkg/cliconfig"
@@ -13,14 +12,14 @@ import (
 
 var (
 	scriptExample = `
-# Run a command 
+# Run a script
 rcse script my_script.sh -i ~/inv.yaml
 rcse script -i ~/inv.yaml my_script.sh
 
-# Run a command as a different user
+# Run a script as a different user
 rcse script my_script.sh -i ~/inv.yaml -u root -p
 
-# Run a command with forks
+# Run a script with forks
 rcse script my_script.sh -i ~/inv.yaml --forks=10 --failure-limit=2
 `
 )
@@ -75,8 +74,6 @@ func (s *ScriptOptions) Run() error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(s.ScriptFilePath)
-
 	job := &cliconfig.Job{
 		Script: s.ScriptFilePath,
 	}
