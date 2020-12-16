@@ -40,6 +40,7 @@ func RunSSHCommand(command string, host string, session *ssh.Session) (Result, e
 	return result, nil
 }
 
+// generateScriptName randomly generates file name, returned in an absolute path
 func generateScriptName() string {
 	s1 := rand.NewSource(time.Now().UnixNano())
 	r1 := rand.New(s1)
@@ -51,8 +52,8 @@ func generateScriptName() string {
 // TransferScript copies a script to a remote host and sets its mode to 0777
 func TransferScript(scriptPath string, client *sftp.Client) (string, error) {
 	// Generate a filename that likely doesn't exist
-	dstFileName := generateScriptName()
-	dstFile, err := client.Create(dstFileName)
+	dstFilePath := generateScriptName()
+	dstFile, err := client.Create(dstFilePath)
 	if err != nil {
 		return "", err
 	}
@@ -67,12 +68,12 @@ func TransferScript(scriptPath string, client *sftp.Client) (string, error) {
 		return "", err
 	}
 
-	err = client.Chmod(dstFileName, 0777)
+	err = client.Chmod(dstFilePath, 0777)
 	if err != nil {
 		return "", err
 	}
 
-	return dstFileName, nil
+	return dstFilePath, nil
 }
 
 // ConsumePassword will prompt the user for a password, reads it from STDIN, and returns it.

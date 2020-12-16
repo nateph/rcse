@@ -4,16 +4,36 @@
 
 The program has subcommands, e.g. `shell` and `script`, and those will dictate what actions get performed.
 #### Inventory
-The inventory file, passed with `-i`, will supply the list of hosts that the program is ran on, and it needs to be in yaml format under the key `hosts`:
+The inventory file, passed with `-i`, will supply the list of hosts that the program is ran on. It takes in a plaintext 
+file like the one shown below.
 
 ```
-hosts:
-  - myhost001.ci.com
-  - myhost002.ci.com
-  - vmhost001.ci.com
+$ cat my_inventory
+myhost001.ci.com
+myhost[002:010].ci.com
+myhost012.ci.com
+vmhost001.ci.com
+baremetal[01:03].company.location.com
 ```
 
-For example, running `rcse shell -c "ls -la" -i <inventory_file>` would list the contents of your user's home directory on each of the hosts in the inventory file. The command should be quoted, and without a user specified, it will use the current local user's ssh keys. 
+Note that if the hosts are in a contiguous range, you may specify the range with host[start:end]... and rcse will expand it internally like so:
+```
+baremetal[01:03].company.location.com
+```
+gets expanded to 
+```
+baremetal01.company.location.com
+baremetal02.company.location.com
+baremetal03.company.location.com
+```
+
+#### Running a single command
+Running `rcse shell -c "ls -la" -i <inventory_file>` would list the contents of your user's home directory on each of the hosts in the inventory file. The command should be quoted, and without a user specified, it will use the current local user's ssh keys. 
+
+#### Running a script
+The subcommand `script` allows for a script, from your local machine, to be ran remotely on all hosts in the inventory.
+
+Running this would look like `rcse script my_script.sh -i <inventory_file>`. All options available to normal commands are available for a script as well, such as running with a different user, or adding forks and failure limits.
 
 #### Authentication 
 A username, `--user`, and password, `--password`, can be specified to execute the commands as a different user.
@@ -27,11 +47,6 @@ If no user is specified, it will use the current user's id_rsa found in `~/.ssh/
 There are options for how many hosts to run on at one time, with the `--forks` flag. Accompanying it is `--failure-limit` which will stop and exit the program when that limit is hit. With neither flag set, the forks and failure limit are set to 1 and 1000 respectively, making a default run safe and unopinionated about the failure limit.
 
 At any one time, the program will keep `--forks=n` amount of executors running. For example, if set to 15, the program will start by executing on 15 hosts concurrently, and then when one finishes, it will pick up the next host to run on, and so on. Contrast this with batching, where the next batch will only start when all hosts in the previous batch have finished. Setting this flag executes on hosts as they are listed in the inventory file, in descending order.
-
-#### Running a script
-The subcommand `script` allows for a script, from your local machine, to be ran remotely on all hosts in the inventory.
-
-Running this would look like `rcse script my_script.sh -i <inventory_file>`. All options available to normal commands are available for a script as well, such as running with a different user, or adding forks and failure limits.
 
 #### Flags
 Each subcommand has its own set of flags relevant to its purpose, as well as global flags available to every command.

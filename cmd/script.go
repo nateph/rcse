@@ -6,6 +6,7 @@ import (
 	"github.com/nateph/rcse/pkg/cliconfig"
 	"github.com/nateph/rcse/pkg/concurrent"
 	"github.com/nateph/rcse/pkg/files"
+	"github.com/nateph/rcse/pkg/files/inventory"
 
 	"github.com/spf13/cobra"
 )
@@ -65,12 +66,17 @@ func (s *ScriptOptions) Validate() error {
 		return err
 	}
 
+	err = files.VerifyScript(s.ScriptFilePath)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 // Run performs the execution of the 'script' sub command
 func (s *ScriptOptions) Run() error {
-	inventory, err := cliconfig.LoadInventory(s.BaseOpts.InventoryFilePath)
+	inventory, err := inventory.LoadInventory(s.BaseOpts.InventoryFilePath)
 	if err != nil {
 		return err
 	}
@@ -81,7 +87,7 @@ func (s *ScriptOptions) Run() error {
 		Job:     *job,
 		Options: *s.BaseOpts,
 	}
-	err = concurrent.Execute(executeConfig, inventory.Hosts...)
+	err = concurrent.Execute(executeConfig, inventory...)
 	if err != nil {
 		return err
 	}

@@ -1,6 +1,7 @@
 package files
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -22,4 +23,22 @@ func ParseAndVerifyFilePath(filePath string) (string, error) {
 	}
 
 	return absFilePath, nil
+}
+
+// VerifyScript checks to make sure a script has a shebang
+func VerifyScript(filePath string) error {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return err
+	}
+	fileReader := bufio.NewReader(file)
+	shebang, err := fileReader.Peek(2)
+	if err != nil {
+		return err
+	}
+	if string(shebang) != "#!" {
+		return fmt.Errorf("%s does not have a proper shebang", filePath)
+	}
+
+	return nil
 }

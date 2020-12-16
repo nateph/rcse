@@ -3,19 +3,13 @@ package cliconfig
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/nateph/rcse/pkg/command"
 	"github.com/nateph/rcse/pkg/files"
+	"github.com/nateph/rcse/pkg/files/inventory"
 	"github.com/spf13/pflag"
-	"gopkg.in/yaml.v2"
 )
-
-// InventoryFile should only contain one yaml entry for hosts
-type InventoryFile struct {
-	Hosts []string `yaml:"hosts"`
-}
 
 // Options represents fields under the options key
 type Options struct {
@@ -70,11 +64,11 @@ func (o *Options) CheckBaseOptions() error {
 	if len(o.InventoryFilePath) == 0 {
 		return errors.New("no inventory flag was specified, all rcse operations require an inventory")
 	} else if o.ListHosts {
-		inventory, err := LoadInventory(o.InventoryFilePath)
+		hosts, err := inventory.LoadInventory(o.InventoryFilePath)
 		if err != nil {
 			return err
 		}
-		for _, host := range inventory.Hosts {
+		for _, host := range hosts {
 			fmt.Println(host)
 		}
 		// Stop execution and exit successfully if --list-hosts was passed
@@ -112,50 +106,4 @@ func (o *Options) VerifyUserOpts() error {
 		return errors.New("please set a user if supplying a password")
 	}
 	return nil
-}
-
-// LoadFile returns the contents of a file as a byte slice
-func LoadFile(file string) (data []byte, err error) {
-	absFilePath, err := files.ParseAndVerifyFilePath(file)
-	if err != nil {
-		return data, err
-	}
-	f, err := os.Open(absFilePath)
-	if err != nil {
-		return data, err
-	}
-	defer f.Close()
-
-	data, err = ioutil.ReadAll(f)
-	if err != nil {
-		return data, err
-	}
-	return data, nil
-}
-
-// LoadInventory returns the inventory file contents as an InventoryFile
-func LoadInventory(file string) (inv InventoryFile, err error) {
-	data, err := LoadFile(file)
-	if err != nil {
-		return inv, err
-	}
-	err = yaml.UnmarshalStrict(data, &inv)
-	if err != nil {
-		return InventoryFile{}, err
-	}
-	return inv, nil
-}
-
-// LoadConfig reads in a yaml file and stores its information
-func LoadConfig(file string) (config *Config, err error) {
-	data, err := LoadFile(file)
-	if err != nil {
-		return config, err
-	}
-	err = yaml.UnmarshalStrict(data, &config)
-	if err != nil {
-		return &Config{}, err
-	}
-
-	return config, nil
 }
