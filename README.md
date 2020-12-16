@@ -3,6 +3,14 @@
 `rcse` is meant to be a simple tool for remote machine automation written in Go, and using SSH under the hood, with no agent or extra packages to install on any remote machines.
 
 The program has subcommands, e.g. `shell` and `script`, and those will dictate what actions get performed.
+#### Running a single command
+Running `rcse shell -c "ls -la" -i <inventory_file>` would list the contents of your user's home directory on each of the hosts in the inventory file. The command should be quoted, and without a user specified, it will use the current local user's ssh keys. 
+
+#### Running a script
+The subcommand `script` allows for a script, from your local machine, to be ran remotely on all hosts in the inventory.
+
+Running this would look like `rcse script my_script.sh -i <inventory_file>`. All options available to normal commands are available for a script as well, such as running with a different user, or adding forks and failure limits.
+
 #### Inventory
 The inventory file, passed with `-i`, will supply the list of hosts that the program is ran on. It takes in a plaintext 
 file like the one shown below.
@@ -26,14 +34,6 @@ baremetal01.company.location.com
 baremetal02.company.location.com
 baremetal03.company.location.com
 ```
-
-#### Running a single command
-Running `rcse shell -c "ls -la" -i <inventory_file>` would list the contents of your user's home directory on each of the hosts in the inventory file. The command should be quoted, and without a user specified, it will use the current local user's ssh keys. 
-
-#### Running a script
-The subcommand `script` allows for a script, from your local machine, to be ran remotely on all hosts in the inventory.
-
-Running this would look like `rcse script my_script.sh -i <inventory_file>`. All options available to normal commands are available for a script as well, such as running with a different user, or adding forks and failure limits.
 
 #### Authentication 
 A username, `--user`, and password, `--password`, can be specified to execute the commands as a different user.
