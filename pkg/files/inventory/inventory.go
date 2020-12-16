@@ -36,7 +36,7 @@ func LoadInventory(file string) (inv []string, err error) {
 		if hostglob.IsGlob(scanner.Text()) {
 			uncollapsed, err := hostglob.Uncollapse(scanner.Text())
 			if err != nil {
-				return []string{}, nil
+				return []string{}, err
 			}
 			hosts = append(hosts, uncollapsed...)
 		} else {
