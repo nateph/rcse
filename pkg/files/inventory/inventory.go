@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"os"
 
+	"github.com/nateph/hostglob"
 	"github.com/nateph/rcse/pkg/files"
-	"github.com/nateph/rcse/pkg/files/hostglob"
 )
 
 // LoadFile returns the file after it has been verified to exist
