@@ -34,11 +34,11 @@ func LoadInventory(file string) (inv []string, err error) {
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
 		if hostglob.IsGlob(scanner.Text()) {
-			uncollapsed, err := hostglob.Uncollapse(scanner.Text())
+			expanded, err := hostglob.Expand(scanner.Text())
 			if err != nil {
 				return []string{}, err
 			}
-			hosts = append(hosts, uncollapsed...)
+			hosts = append(hosts, expanded...)
 		} else {
 			hosts = append(hosts, scanner.Text())
 		}

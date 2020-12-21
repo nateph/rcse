@@ -1,10 +1,10 @@
 [![CircleCI](https://circleci.com/gh/circleci/circleci-docs.svg?style=shield)](https://circleci.com/gh/nateph/rcse) [![Go Report Card](https://goreportcard.com/badge/github.com/nateph/rcse)](https://goreportcard.com/report/github.com/nateph/rcse ) ![GitHub](https://img.shields.io/github/license/nateph/rcse)
 ### RCSE (Run Command Somewhere Else)
-`rcse` is meant to be a simple tool for remote machine automation written in Go, and using SSH under the hood, with no agent or extra packages to install on any remote machines.
+`rcse` is meant to be a simple tool for remote machine automation written in Go, utilizing only SSH, with no agent or extra packages to install on any remote machines.
 
 The program has subcommands, e.g. `shell` and `script`, and those will dictate what actions get performed.
 #### Running a single command
-Running `rcse shell -c "ls -la" -i <inventory_file>` would list the contents of your user's home directory on each of the hosts in the inventory file. The command should be quoted, and without a user specified, it will use the current local user's ssh keys. 
+Running `rcse shell -c "ls -la" -i <inventory_file>` would run "ls -la", listing the contents of your user's home directory on each of the hosts in the inventory file. The command should be quoted, and without a user specified, it will use the current local user's ssh keys (id_rsa by default, see --help for more options). 
 
 #### Running a script
 The subcommand `script` allows for a script, from your local machine, to be ran remotely on all hosts in the inventory.
