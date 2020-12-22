@@ -8,6 +8,8 @@ import (
 type Options struct {
 	// Command that will be ran, if provided
 	Command string
+	// if true, delete the script after execution
+	Cleanup bool
 	// Whether or not to verify host keys
 	IgnoreHostkeyCheck bool
 	// Host to execute on
@@ -74,6 +76,13 @@ func (opts *Options) RunScript() (Result, error) {
 	result, err := RunSSHCommand(scriptPath, opts.Host, session)
 	if err != nil {
 		return Result{}, err
+	}
+
+	if opts.Cleanup {
+		err := sftpClient.Remove(scriptPath)
+		if err != nil {
+			return Result{}, err
+		}
 	}
 
 	return result, nil

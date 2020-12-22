@@ -29,6 +29,8 @@ type Options struct {
 type Job struct {
 	Command string
 	Script  string
+	// If the job is a script, and Cleanup is true, we delete the script afterwards
+	Cleanup bool
 }
 
 // Config includes all configuration for the program
@@ -47,7 +49,7 @@ func (o *Options) AddBaseFlags(fs *pflag.FlagSet) {
 		"ignore-hostkey-checking",
 		"k",
 		false,
-		"disable host key verification. this will accept any host key and is insecure.\n"+
+		"disable host key verification. this will accept any host key and is insecure\n"+
 			"same as 'ssh -o StrictHostKeyChecking=no' ")
 	fs.StringVarP(&o.InventoryFilePath, "inventory", "i", o.InventoryFilePath, "the inventory file of hosts to run on, in yaml format")
 	fs.BoolVar(&o.ListHosts, "list-hosts", false, "only list hosts that will be executed on, then exits")

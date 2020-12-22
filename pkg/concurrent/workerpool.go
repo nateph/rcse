@@ -84,6 +84,7 @@ func generateJobs(conf *cliconfig.Config, inventory ...string) []command.Options
 		jobOpts := command.Options{
 			Host:               host,
 			Command:            conf.Job.Command,
+			Cleanup:            conf.Job.Cleanup,
 			IgnoreHostkeyCheck: conf.Options.IgnoreHostKeyCheck,
 			User:               conf.Options.User,
 			Password:           conf.Options.Password,

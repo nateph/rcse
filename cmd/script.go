@@ -29,6 +29,7 @@ rcse script my_script.sh -i ~/inv.yaml --forks=10 --failure-limit=2
 type ScriptOptions struct {
 	BaseOpts       *cliconfig.Options
 	ScriptFilePath string
+	Cleanup        bool
 }
 
 // NewScriptCommand validates and runs the 'shell' sub command
@@ -51,6 +52,7 @@ func NewScriptCommand(out io.Writer) *cobra.Command {
 		},
 	}
 	o.BaseOpts.AddBaseFlags(cmd.Flags())
+	cmd.Flags().BoolVar(&o.Cleanup, "cleanup", false, "delete the script after executing it")
 	return cmd
 }
 
@@ -81,7 +83,8 @@ func (s *ScriptOptions) Run() error {
 		return err
 	}
 	job := &cliconfig.Job{
-		Script: s.ScriptFilePath,
+		Script:  s.ScriptFilePath,
+		Cleanup: s.Cleanup,
 	}
 	executeConfig := &cliconfig.Config{
 		Job:     *job,
