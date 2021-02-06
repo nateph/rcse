@@ -41,7 +41,7 @@ If providing a different user, the program will prompt for password input. You m
 
 `rcse ... -u root -p` and `rcse ... -u root -p=CoolPassword` are equivalent, but the first one prompts you for password input securely. Note that passing a user without a password flag will still prompt for a password.
 
-If no user is specified, it will use the current user's id_rsa found in `~/.ssh/id_rsa`.
+If no user is specified, it will use the current user's id_ed25519 found in `~/.ssh/id_ed25519`.
 
 #### Running concurrently 
 There are options for how many hosts to run on at one time, with the `--forks` flag. Accompanying it is `--failure-limit` which will stop and exit the program when that limit is hit. With neither flag set, the forks and failure limit are set to 1 and 1000 respectively, making a default run safe and unopinionated about the failure limit.

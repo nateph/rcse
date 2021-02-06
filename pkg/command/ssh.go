@@ -92,7 +92,7 @@ func ConsumePassword(username string, password string) (string, error) {
 func getKeyFile(currentUser *user.User, privateKeyPath string) (key ssh.Signer, err error) {
 	var IDFile string
 	if privateKeyPath == "" {
-		IDFile = currentUser.HomeDir + "/.ssh/id_rsa"
+		IDFile = currentUser.HomeDir + "/.ssh/id_ed25519"
 	} else {
 		IDFile = privateKeyPath
 	}
@@ -106,6 +106,13 @@ func getKeyFile(currentUser *user.User, privateKeyPath string) (key ssh.Signer, 
 	}
 
 	return key, err
+}
+
+func findKeyByExtension(ext string) (string, error) {
+	files, err := ioutil.ReadDir("currentUser.HomeDir" + "/.ssh")
+	if err != nil {
+		return "", err
+	}
 }
 
 // EstablishSSHConnection returns an ssh client config from an id_rsa or username/password
