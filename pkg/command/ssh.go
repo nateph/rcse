@@ -108,13 +108,6 @@ func getKeyFile(currentUser *user.User, privateKeyPath string) (key ssh.Signer, 
 	return key, err
 }
 
-func findKeyByExtension(ext string) (string, error) {
-	files, err := ioutil.ReadDir("currentUser.HomeDir" + "/.ssh")
-	if err != nil {
-		return "", err
-	}
-}
-
 // EstablishSSHConnection returns an ssh client config from an id_rsa or username/password
 func EstablishSSHConnection(username string, password string, host string, ignoreHostKeyCheck bool, privateKey string) (*ssh.Client, error) {
 	var sshConfig *ssh.ClientConfig
