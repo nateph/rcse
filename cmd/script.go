@@ -52,7 +52,7 @@ func NewScriptCommand(out io.Writer) *cobra.Command {
 		},
 	}
 	o.BaseOpts.AddBaseFlags(cmd.Flags())
-	cmd.Flags().BoolVar(&o.Cleanup, "cleanup", false, "delete the script after executing it")
+	cmd.Flags().BoolVar(&o.Cleanup, "cleanup", false, "delete the script on the remote host after executing it")
 	return cmd
 }
 

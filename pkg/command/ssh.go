@@ -163,7 +163,7 @@ func EstablishSSHConnection(username string, password string, host string, ignor
 	}
 	client, err := ssh.Dial("tcp", host+":22", sshConfig)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to connect to host: %s", host)
+		return nil, fmt.Errorf("failed to connect to host: %s\nerror: %s", host, err)
 	}
 
 	return client, nil

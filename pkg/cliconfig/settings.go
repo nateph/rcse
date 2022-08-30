@@ -57,7 +57,7 @@ func (o *Options) AddBaseFlags(fs *pflag.FlagSet) {
 	fs.StringVarP(&o.Password, "password", "p", o.Password, "the password for a remote user")
 	fs.Lookup("password").NoOptDefVal = "default"
 	fs.StringVarP(&o.User, "user", "u", o.User, "the optional user to execute as, if -p is not provided, will prompt for password")
-	fs.StringVar(&o.PrivateKey, "private-key", o.PrivateKey, "specify a private key to use for ssh connection")
+	fs.StringVar(&o.PrivateKey, "private-key", o.PrivateKey, "specify a private key to use for ssh connection, uses $HOME/.ssh/id_ed25519 by default")
 	// fs.BoolVarP(&o.Verbose, "verbose", "v", false, "enable verbose logging")
 }
 
