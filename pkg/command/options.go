@@ -35,7 +35,7 @@ func (opts *Options) RunCommand() (Result, error) {
 
 	session, err := sshClient.NewSession()
 	if err != nil {
-		return Result{}, fmt.Errorf("Failed to create session: %v", err.Error())
+		return Result{}, fmt.Errorf("failed to create session: %v", err.Error())
 	}
 	defer session.Close()
 
@@ -69,7 +69,7 @@ func (opts *Options) RunScript() (Result, error) {
 
 	session, err := conn.NewSession()
 	if err != nil {
-		return Result{}, fmt.Errorf("Failed to create session: %v", err.Error())
+		return Result{}, fmt.Errorf("failed to create session: %v", err.Error())
 	}
 	defer session.Close()
 

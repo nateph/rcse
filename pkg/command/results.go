@@ -6,8 +6,9 @@ import (
 	"os"
 	"strings"
 
+	color "github.com/fatih/color"
 	log "github.com/sirupsen/logrus"
-	"golang.org/x/crypto/ssh/terminal"
+	terminal "golang.org/x/term"
 	"gopkg.in/yaml.v2"
 )
 
@@ -26,10 +27,14 @@ func (r *Result) PrintHostOutput(format string) {
 	terminalWidth := getTerminalWidth()
 	switch format {
 	case "text":
+		green := color.New(color.FgGreen).SprintFunc()
 		fmt.Printf(
-			"host: %s\ncommand: %s\nstdout:\n%s%s\n",
-			r.Host,
+			"host: %s\ncommand: %s\n",
+			green(r.Host),
 			r.CommandRan,
+		)
+		fmt.Printf(
+			"stdout:\n%s%s\n",
 			r.Stdout,
 			strings.Repeat("-", terminalWidth),
 		)

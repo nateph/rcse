@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"math/rand"
 	"os"
@@ -16,7 +15,7 @@ import (
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/knownhosts"
-	"golang.org/x/crypto/ssh/terminal"
+	terminal "golang.org/x/term"
 )
 
 // RunSSHCommand runs the command and records its information in a CommandResult
@@ -96,7 +95,7 @@ func getKeyFile(currentUser *user.User, privateKeyPath string) (key ssh.Signer, 
 	} else {
 		IDFile = privateKeyPath
 	}
-	buf, err := ioutil.ReadFile(IDFile)
+	buf, err := os.ReadFile(IDFile)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read file %s", IDFile)
 	}
